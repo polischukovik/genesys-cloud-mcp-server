@@ -6,7 +6,7 @@ import type {
 import { z } from "zod";
 import { createTool, type ToolFactory } from "../utils/createTool.js";
 import { errorResult } from "../utils/errorResult.js";
-import { isUnauthorisedError } from "../utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "../utils/genesys/isUnauthorizedError.js";
 import { chunks } from "./chunks.js";
 
 export interface ToolDependencies {
@@ -51,8 +51,8 @@ export const conversationTopics: ToolFactory<
         conversationDetails =
           await analyticsApi.getAnalyticsConversationDetails(conversationId);
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to retrieve conversation topics: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to retrieve conversation topics: Unauthorized access. Please check API credentials or permissions"
           : `Failed to retrieve conversation topics: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);
@@ -98,8 +98,8 @@ export const conversationTopics: ToolFactory<
           },
         );
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to retrieve conversation topics: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to retrieve conversation topics: Unauthorized access. Please check API credentials or permissions"
           : `Failed to retrieve conversation topics: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);
@@ -140,8 +140,8 @@ export const conversationTopics: ToolFactory<
           topics.push(...(topicsListings.entities ?? []));
         }
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to retrieve conversation topics: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to retrieve conversation topics: Unauthorized access. Please check API credentials or permissions"
           : `Failed to retrieve conversation topics: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);

@@ -1,5 +1,5 @@
 import { intervalToDuration } from "date-fns/intervalToDuration";
-import type { Utterance } from "./Utterance.js";
+import type { Utterance } from "./utterance.js";
 
 function zeroPad(num: number): string {
   return String(num).padStart(2, "0");

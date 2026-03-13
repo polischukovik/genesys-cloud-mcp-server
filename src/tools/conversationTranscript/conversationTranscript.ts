@@ -7,14 +7,14 @@ import type {
 import { z } from "zod";
 import { createTool, type ToolFactory } from "../utils/createTool.js";
 import { errorResult } from "../utils/errorResult.js";
-import { isUnauthorisedError } from "../utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "../utils/genesys/isUnauthorizedError.js";
 import { formatTimeUtteranceStarted } from "./formatTimeUtteranceStarted.js";
 import type {
   Participant,
   Transcript,
   TranscriptResponseFormat,
-} from "./TranscriptResponse.js";
-import type { Utterance } from "./Utterance.js";
+} from "./transcriptResponse.js";
+import type { Utterance } from "./utterance.js";
 
 export interface ToolDependencies {
   readonly recordingApi: Pick<RecordingApi, "getConversationRecordings">;
@@ -106,7 +106,7 @@ const paramsSchema = z.object({
     ),
 });
 
-export const conversationTranscription: ToolFactory<
+export const conversationTranscript: ToolFactory<
   ToolDependencies,
   typeof paramsSchema
 > = ({ recordingApi, speechTextAnalyticsApi, fetchUrl }) =>
@@ -131,8 +131,8 @@ export const conversationTranscription: ToolFactory<
             conversationId,
           )) as Models.Recording[] | undefined;
         } catch (error: unknown) {
-          const errorMessage = isUnauthorisedError(error)
-            ? "Failed to retrieve transcript: Unauthorised access. Please check API credentials or permissions"
+          const errorMessage = isUnauthorizedError(error)
+            ? "Failed to retrieve transcript: Unauthorized access. Please check API credentials or permissions"
             : `Failed to retrieve transcript: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
           return errorResult(errorMessage);
@@ -167,8 +167,8 @@ export const conversationTranscription: ToolFactory<
               recordingSessionId,
             );
         } catch (error) {
-          const errorMessage = isUnauthorisedError(error)
-            ? "Failed to retrieve transcript: Unauthorised access. Please check API credentials or permissions"
+          const errorMessage = isUnauthorizedError(error)
+            ? "Failed to retrieve transcript: Unauthorized access. Please check API credentials or permissions"
             : `Failed to retrieve transcript: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
           return errorResult(errorMessage);

@@ -1,7 +1,7 @@
 /**
- * Checks if an object is an Unauthorised error.
+ * Checks if an object is an Unauthorized error.
  */
-export function isUnauthorisedError(obj: unknown): boolean {
+export function isUnauthorizedError(obj: unknown): boolean {
   if (typeof obj === "object" && obj !== null) {
     const error = obj as { code?: string; status?: number };
 

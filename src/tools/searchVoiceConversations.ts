@@ -3,7 +3,7 @@ import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
 import { errorResult } from "./utils/errorResult.js";
-import { isUnauthorisedError } from "./utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
 import { paginationSection } from "./utils/paginationSection.js";
 
 export interface ToolDependencies {
@@ -139,8 +139,8 @@ export const searchVoiceConversations: ToolFactory<
           surveyFilters: [],
         });
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to search conversations: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to search conversations: Unauthorized access. Please check API credentials or permissions"
           : `Failed to search conversations: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);
