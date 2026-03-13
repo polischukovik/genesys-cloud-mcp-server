@@ -5,20 +5,44 @@
 
 A Model Context Protocol (MCP) server for Genesys Cloud's Platform API.
 
-## Features
+## Tools
 
-| Tool                                                                          | Description                                                              |
-|-------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [Search Queues](/docs/tools.md#search-queues)                                 | Searches for queues by their name (supports wildcards)                   |
-| [Query Queue Volumes](/docs/tools.md#query-queue-volumes)                     | Retrieves conversation volumes and member count by Queue IDs             |
-| [Sample Conversations By Queue](/docs/tools.md#sample-conversations-by-queue) | Retrieves a representative sample of Conversation IDs for a Queue ID     |
-| [Voice Call Quality](/docs/tools.md#voice-call-quality)                       | Retrieves voice call quality metrics for one or more conversations by ID |
-| [Conversation Sentiment](/docs/tools.md#conversation-sentiment)               | Retrieves the sentiment for one or more conversations by ID              |
-| [Conversation Topics](/docs/tools.md#conversation-topics)                     | Retrieves the topics for a conversation by ID                            |
-| [Search Voice Conversation](/docs/tools.md#search-voice-conversations)        | Searches voice conversations by optional criteria                        |
-| [Conversation Transcript](/docs/tools.md#conversation-transcript)             | Retrieves conversation transcript                                        |
-| [OAuth Clients](/docs/tools.md#oauth-clients)                                 | Retrieves a list of all the OAuth clients                                |
-| [OAuth Client Usage](/docs/tools.md#oauth-client-usage)                       | Retrieves OAuth client usage for given period                            |
+Full tool reference (detailed input payloads, permissions, and endpoints): [docs/tools.md](docs/tools.md).
+
+### Queue and Conversation Discovery
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [Search Queues](docs/tools.md#search-queues) | `search_queues` | `name`, `pageNumber`, `pageSize` |
+| [Search Voice Conversations](docs/tools.md#search-voice-conversations) | `search_voice_conversations` | `startDate`, `endDate`, `phoneNumber?`, `pageNumber?`, `pageSize?` |
+| [Sample Conversations By Queue](docs/tools.md#sample-conversations-by-queue) | `sample_conversations_by_queue` | `queueId`, `startDate`, `endDate` |
+| [Query Queue Volumes](docs/tools.md#query-queue-volumes) | `query_queue_volumes` | `queueIds[]`, `startDate`, `endDate` |
+
+### Analytics Aggregates and Observations
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [Analytics Conversations Aggregates](docs/tools.md#analytics-conversations-aggregates) | `analytics_conversations_aggregates` | `query` (`ConversationAggregationQuery`) |
+| [Analytics Conversations Aggregates Async](docs/tools.md#analytics-conversations-aggregates-async) | `analytics_conversations_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?` |
+| [Analytics Users Aggregates](docs/tools.md#analytics-users-aggregates) | `analytics_users_aggregates` | `query` (`UserAggregationQuery`) |
+| [Analytics Queues Observations](docs/tools.md#analytics-queues-observations) | `analytics_queues_observations` | `query` (`QueueObservationQuery`) |
+| [Analytics Users Observations](docs/tools.md#analytics-users-observations) | `analytics_users_observations` | `query` (`UserObservationQuery`) |
+
+### Conversation Intelligence
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [Voice Call Quality](docs/tools.md#voice-call-quality) | `voice_call_quality` | `conversationIds[]` |
+| [Conversation Sentiment](docs/tools.md#conversation-sentiment) | `conversation_sentiment` | `conversationIds[]` |
+| [Conversation Topics](docs/tools.md#conversation-topics) | `conversation_topics` | `conversationId` |
+| [Conversation Transcript](docs/tools.md#conversation-transcript) | `conversation_transcript` | `conversationId` |
+
+### OAuth Administration
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [OAuth Clients](docs/tools.md#oauth-clients) | `oauth_clients` | No input |
+| [OAuth Client Usage](docs/tools.md#oauth-client-usage) | `oauth_client_usage` | `oauthClientId`, `startDate`, `endDate` |
 
 ## Usage with Claude Desktop
 

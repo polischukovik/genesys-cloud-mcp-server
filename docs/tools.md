@@ -1,5 +1,49 @@
 # Tools
 
+This is the detailed reference for every MCP tool exposed by the server.
+Each tool section includes:
+
+- Input parameters
+- Required Genesys Cloud permissions
+- Platform API endpoints used
+
+## Quick Index
+
+### Queue and Conversation Discovery
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [Search Queues](#search-queues) | `search_queues` | `name`, `pageNumber`, `pageSize` |
+| [Search Voice Conversations](#search-voice-conversations) | `search_voice_conversations` | `startDate`, `endDate`, `phoneNumber?`, `pageNumber?`, `pageSize?` |
+| [Sample Conversations By Queue](#sample-conversations-by-queue) | `sample_conversations_by_queue` | `queueId`, `startDate`, `endDate` |
+| [Query Queue Volumes](#query-queue-volumes) | `query_queue_volumes` | `queueIds[]`, `startDate`, `endDate` |
+
+### Analytics Aggregates and Observations
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [Analytics Conversations Aggregates](#analytics-conversations-aggregates) | `analytics_conversations_aggregates` | `query` (`ConversationAggregationQuery`) |
+| [Analytics Conversations Aggregates Async](#analytics-conversations-aggregates-async) | `analytics_conversations_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?` |
+| [Analytics Users Aggregates](#analytics-users-aggregates) | `analytics_users_aggregates` | `query` (`UserAggregationQuery`) |
+| [Analytics Queues Observations](#analytics-queues-observations) | `analytics_queues_observations` | `query` (`QueueObservationQuery`) |
+| [Analytics Users Observations](#analytics-users-observations) | `analytics_users_observations` | `query` (`UserObservationQuery`) |
+
+### Conversation Intelligence
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [Voice Call Quality](#voice-call-quality) | `voice_call_quality` | `conversationIds[]` |
+| [Conversation Sentiment](#conversation-sentiment) | `conversation_sentiment` | `conversationIds[]` |
+| [Conversation Topics](#conversation-topics) | `conversation_topics` | `conversationId` |
+| [Conversation Transcript](#conversation-transcript) | `conversation_transcript` | `conversationId` |
+
+### OAuth Administration
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| [OAuth Clients](#oauth-clients) | `oauth_clients` | No input |
+| [OAuth Client Usage](#oauth-client-usage) | `oauth_client_usage` | `oauthClientId`, `startDate`, `endDate` |
+
 ## Search Queues
 
 **Tool name:** `search_queues`
@@ -18,7 +62,7 @@ Searches for routing queues based on their name, allowing for wildcard searches.
 
 ### Security
 
-Required permission:
+Required permissions:
 
 - `routing:queue:view`
 
@@ -45,7 +89,7 @@ Returns a breakdown of how many conversations occurred in each specified queue b
 
 ### Security
 
-Required permission:
+Required permissions:
 
 - `analytics:conversationDetail:view`
 
@@ -63,14 +107,14 @@ Runs a synchronous conversations aggregates query in Genesys Cloud and returns a
 
 [Source file](/src/tools/analyticsConversationsAggregates.ts).
 
-### Input
+### Inputs
 
 - `query`
   - `ConversationAggregationQuery` JSON payload for `POST /api/v2/analytics/conversations/aggregates/query` (for example: `interval`, `metrics`, `groupBy`, `filter`, `granularity`)
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `analytics:conversationAggregate:view`
 
@@ -86,7 +130,7 @@ Creates and reads asynchronous conversations aggregates jobs. Use `create_job` f
 
 [Source file](/src/tools/analyticsConversationsAggregatesAsync.ts).
 
-### Input
+### Inputs
 
 - `operation`
   - One of: `create_job`, `get_job`, `get_results`
@@ -99,7 +143,7 @@ Creates and reads asynchronous conversations aggregates jobs. Use `create_job` f
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `analytics:conversationAggregate:view`
 
@@ -117,14 +161,14 @@ Runs a synchronous users aggregates query in Genesys Cloud and returns aggregate
 
 [Source file](/src/tools/analyticsUsersAggregates.ts).
 
-### Input
+### Inputs
 
 - `query`
   - `UserAggregationQuery` JSON payload for `POST /api/v2/analytics/users/aggregates/query` (for example: `interval`, `metrics`, `groupBy`, `filter`, `granularity`)
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `analytics:userAggregate:view`
 
@@ -140,14 +184,14 @@ Runs a real-time queue observations query in Genesys Cloud and returns current q
 
 [Source file](/src/tools/analyticsQueuesObservations.ts).
 
-### Input
+### Inputs
 
 - `query`
   - `QueueObservationQuery` JSON payload for `POST /api/v2/analytics/queues/observations/query` (for example: `filter`, `metrics`, `detailMetrics`)
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `analytics:queueObservation:view`
 
@@ -163,14 +207,14 @@ Runs a real-time user observations query in Genesys Cloud and returns current us
 
 [Source file](/src/tools/analyticsUsersObservations.ts).
 
-### Input
+### Inputs
 
 - `query`
   - `UserObservationQuery` JSON payload for `POST /api/v2/analytics/users/observations/query` (for example: `filter`, `metrics`, `detailMetrics`)
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `analytics:userObservation:view`
 
@@ -184,6 +228,8 @@ Platform API endpoint used:
 
 Retrieves conversation analytics for a specific queue between two dates, returning a representative sample of conversation IDs. Useful for reporting, investigation, or summarisation.
 
+[Source file](/src/tools/sampleConversationsByQueue/sampleConversationsByQueue.ts).
+
 ### Inputs
 
 - `queueId`
@@ -195,7 +241,7 @@ Retrieves conversation analytics for a specific queue between two dates, returni
 
 ### Security
 
-Required Permission:
+Required permissions:
 
 - `analytics:conversationDetail:view`
 
@@ -222,7 +268,7 @@ Read more [about MOS scores and how they're determined](https://developer.genesy
 
 ### Security
 
-Required Permission:
+Required permissions:
 
 - `analytics:conversationDetail:view`
 
@@ -245,7 +291,7 @@ Retrieves sentiment analysis scores for one or more conversations. Sentiment is 
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `speechAndTextAnalytics:data:view`
 - `recording:recording:view`
@@ -264,14 +310,14 @@ Read more [about programs, topics, and phrases](https://help.mypurecloud.com/art
 
 [Source file](/src/tools/conversationTopics/conversationTopics.ts).
 
-### Input
+### Inputs
 
 - `conversationId`
   - A UUID for a conversation. (e.g., 00000000-0000-0000-0000-000000000000)
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `speechAndTextAnalytics:topic:view`
 - `analytics:conversationDetail:view`
@@ -291,7 +337,7 @@ Searches for voice conversations within a specified time window, optionally filt
 
 [Source file](/src/tools/searchVoiceConversations.ts).
 
-### Input
+### Inputs
 
 - `phoneNumber`
   - Optional. Filters results to only include conversations involving this phone number (e.g., '+440000000000')
@@ -306,7 +352,7 @@ Searches for voice conversations within a specified time window, optionally filt
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `analytics:conversationDetail:view`
 
@@ -322,14 +368,14 @@ Retrieves a structured transcript of the conversation, including speaker labels,
 
 [Source file](/src/tools/conversationTranscript/conversationTranscript.ts).
 
-### Input
+### Inputs
 
 - `conversationId`
   - The UUID of the conversation to retrieve the transcript for (e.g., 00000000-0000-0000-0000-000000000000)
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `recording:recording:view`
 - `speechAndTextAnalytics:data:view`
@@ -349,7 +395,7 @@ Retrieves a list of all OAuth clients, including their associated roles and divi
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `oauth:client:view`
 - `authorization:role:view`
@@ -369,18 +415,18 @@ Retrieves the usage of an OAuth Client for a given period. It returns the total 
 
 [Source file](/src/tools/oauthClientUsage/oauthClientUsage.ts).
 
-### Input
+### Inputs
 
 - `oauthClientId`
-    - The UUID of the OAuth Client to retrieve the usage for (e.g., 00000000-0000-0000-0000-000000000000)
+  - The UUID of the OAuth Client to retrieve the usage for (e.g., 00000000-0000-0000-0000-000000000000)
 - `startDate`
-    - The start date/time in ISO-8601 format (e.g., '2024-01-01T00:00:00Z')
+  - The start date/time in ISO-8601 format (e.g., '2024-01-01T00:00:00Z')
 - `endDate`
-    - The end date/time in ISO-8601 format (e.g., '2024-01-07T23:59:59Z')
+  - The end date/time in ISO-8601 format (e.g., '2024-01-07T23:59:59Z')
 
 ### Security
 
-Required Permissions:
+Required permissions:
 
 - `usage:client:view`
 
