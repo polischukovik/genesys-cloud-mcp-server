@@ -6,7 +6,7 @@ import { OAuthClientCredentialsWrapper } from "./auth/OAuthClientCredentialsWrap
 import { createConfigRetriever } from "./createConfigRetriever.js";
 import { conversationSentiment } from "./tools/conversationSentiment/conversationSentiment.js";
 import { conversationTopics } from "./tools/conversationTopics/conversationTopics.js";
-import { conversationTranscription } from "./tools/conversationTranscription/conversationTranscription.js";
+import { conversationTranscript } from "./tools/conversationTranscript/conversationTranscript.js";
 import { oauthClients } from "./tools/oauthClients/oauthClients.js";
 import {
   type OAuthClientUsageResponse,
@@ -131,7 +131,7 @@ server.registerTool(
   withAuth(searchVoiceConversationsTool.call),
 );
 
-const conversationTranscriptTool = conversationTranscription({
+const conversationTranscriptTool = conversationTranscript({
   recordingApi,
   speechTextAnalyticsApi,
   fetchUrl: fetch,

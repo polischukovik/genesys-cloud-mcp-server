@@ -197,7 +197,7 @@ Platform API endpoints used:
 
 Retrieves a structured transcript of the conversation, including speaker labels, utterance timestamps, and sentiment annotations where available. The transcript is formatted as a time-aligned list of utterances attributed to each participant (e.g., customer or agent).
 
-[Source file](/src/tools/conversationTranscription/conversationTranscription.ts).
+[Source file](/src/tools/conversationTranscript/conversationTranscript.ts).
 
 ### Input
 

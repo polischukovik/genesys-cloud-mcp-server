@@ -5,7 +5,7 @@ import type {
 import { z } from "zod";
 import { createTool, type ToolFactory } from "../utils/createTool.js";
 import { errorResult } from "../utils/errorResult.js";
-import { isUnauthorisedError } from "../utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "../utils/genesys/isUnauthorizedError.js";
 import { interpretSentiment } from "./interpretSentiment.js";
 import { isConversationNotFoundError } from "./isConversationNotFoundError.js";
 
@@ -86,9 +86,9 @@ export const conversationSentiment: ToolFactory<
               conversationId: result.conversationId,
               found: false,
             });
-          } else if (isUnauthorisedError(convo.reason)) {
+          } else if (isUnauthorizedError(convo.reason)) {
             return errorResult(
-              "Failed to retrieve sentiment analysis: Unauthorised access. Please check API credentials or permissions",
+              "Failed to retrieve sentiment analysis: Unauthorized access. Please check API credentials or permissions",
             );
           } else {
             // Ignore conversation

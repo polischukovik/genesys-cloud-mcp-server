@@ -7,7 +7,7 @@ import { z } from "zod";
 import { createTool, type ToolFactory } from "../utils/createTool.js";
 import { errorResult } from "../utils/errorResult.js";
 import { isMissingPermissionsError } from "../utils/genesys/isMissingPermissionsError.js";
-import { isUnauthorisedError } from "../utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "../utils/genesys/isUnauthorizedError.js";
 import { formatOAuthClientJson } from "./formatOAuthClientJson.js";
 
 export interface ToolDependencies {
@@ -61,8 +61,8 @@ export const oauthClients: ToolFactory<
       try {
         result = await oauthApi.getOauthClients();
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to retrieve list of all OAuth clients: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to retrieve list of all OAuth clients: Unauthorized access. Please check API credentials or permissions"
           : `Failed to retrieve list of all OAuth clients: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);

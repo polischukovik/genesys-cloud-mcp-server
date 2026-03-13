@@ -3,7 +3,7 @@ import type { Models, OAuthApi } from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { createTool, type ToolFactory } from "../utils/createTool.js";
 import { errorResult } from "../utils/errorResult.js";
-import { isUnauthorisedError } from "../utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "../utils/genesys/isUnauthorizedError.js";
 import { waitFor } from "../utils/waitFor.js";
 
 const MAX_ATTEMPTS = 10;
@@ -94,8 +94,8 @@ export const oauthClientUsage: ToolFactory<
           groupBy: ["TemplateUri", "HttpMethod"],
         });
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to retrieve usage of OAuth client: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to retrieve usage of OAuth client: Unauthorized access. Please check API credentials or permissions"
           : `Failed to retrieve usage of OAuth client: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);

@@ -2,7 +2,7 @@ import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { createTool, type ToolFactory } from "../utils/createTool.js";
 import { errorResult } from "../utils/errorResult.js";
-import { isUnauthorisedError } from "../utils/genesys/isUnauthorisedError.js";
+import { isUnauthorizedError } from "../utils/genesys/isUnauthorizedError.js";
 import { interpretCallQuality } from "./interpretCallQuality.js";
 
 export interface ToolDependencies {
@@ -49,8 +49,8 @@ export const voiceCallQuality: ToolFactory<
             id: conversationIds,
           });
       } catch (error: unknown) {
-        const errorMessage = isUnauthorisedError(error)
-          ? "Failed to query conversations call quality: Unauthorised access. Please check API credentials or permissions"
+        const errorMessage = isUnauthorizedError(error)
+          ? "Failed to query conversations call quality: Unauthorized access. Please check API credentials or permissions"
           : `Failed to query conversations call quality: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 
         return errorResult(errorMessage);

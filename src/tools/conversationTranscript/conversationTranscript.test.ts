@@ -5,10 +5,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { MockedObjectDeep } from "@vitest/spy";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
-  conversationTranscription,
+  conversationTranscript,
   type ToolDependencies,
-} from "./conversationTranscription.js";
-import type { TranscriptResponseFormat } from "./TranscriptResponse.js";
+} from "./conversationTranscript.js";
+import type { TranscriptResponseFormat } from "./transcriptResponse.js";
 
 describe("Conversation Transcription Tool", () => {
   let toolDeps: MockedObjectDeep<ToolDependencies>;
@@ -27,7 +27,7 @@ describe("Conversation Transcription Tool", () => {
       fetchUrl: vi.fn(),
     };
 
-    const toolDefinition = conversationTranscription(toolDeps);
+    const toolDefinition = conversationTranscript(toolDeps);
     toolName = toolDefinition.schema.name;
 
     const server = new McpServer({ name: "TestServer", version: "test" });

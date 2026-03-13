@@ -4,7 +4,8 @@ import type { ConfigRetriever } from "../createConfigRetriever.js";
 import type { ToolCall } from "../tools/utils/createTool.js";
 import { errorResult } from "../tools/utils/errorResult.js";
 
-let isAuthenticated = false;
+let clientCredentialsAuthenticated = false;
+let configuredAccessToken: string | undefined;
 
 type AuthResult =
   | { authenticated: true }
@@ -22,10 +23,27 @@ async function authenticate(
 
   try {
     apiClient.setEnvironment(authConfig.region);
-    await apiClient.loginClientCredentialsGrant(
-      authConfig.oAuthClientId,
-      authConfig.oAuthClientSecret,
-    );
+
+    if (authConfig.kind === "access_token") {
+      if (configuredAccessToken !== authConfig.accessToken) {
+        apiClient.setAccessToken(authConfig.accessToken);
+        configuredAccessToken = authConfig.accessToken;
+      }
+
+      // Access-token mode is externally managed (e.g. OAuth code/PKCE flow).
+      // We do not call login here.
+      return {
+        authenticated: true,
+      };
+    }
+
+    if (!clientCredentialsAuthenticated) {
+      await apiClient.loginClientCredentialsGrant(
+        authConfig.oAuthClientId,
+        authConfig.oAuthClientSecret,
+      );
+      clientCredentialsAuthenticated = true;
+    }
   } catch (e: unknown) {
     return {
       authenticated: false,
@@ -46,15 +64,11 @@ export const OAuthClientCredentialsWrapper = (
     call: ToolCall<Schema>,
   ): ToolCall<Schema> =>
     async (input: Schema) => {
-      if (!isAuthenticated) {
-        const authResult = await authenticate(apiClient, configRetriever);
-        if (authResult.authenticated) {
-          isAuthenticated = true;
-        } else {
-          return errorResult(
-            `Failed to authenticate with Genesys Cloud. Reason:\n${authResult.reason}`,
-          );
-        }
+      const authResult = await authenticate(apiClient, configRetriever);
+      if (!authResult.authenticated) {
+        return errorResult(
+          `Failed to authenticate with Genesys Cloud. Reason:\n${authResult.reason}`,
+        );
       }
 
       return call(input);
