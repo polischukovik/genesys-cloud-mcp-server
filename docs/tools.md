@@ -55,6 +55,129 @@ Platform API endpoints used:
 - [`GET /api/v2/analytics/conversations/details/jobs/{jobId}`](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-conversations-details-jobs--jobId-)
 - [`GET /api/v2/analytics/conversations/details/jobs/{jobId}/results`](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-conversations-details-jobs--jobId--results)
 
+## Analytics Conversations Aggregates
+
+**Tool name:** `analytics_conversations_aggregates`
+
+Runs a synchronous conversations aggregates query in Genesys Cloud and returns aggregate metrics grouped and filtered by the provided query payload.
+
+[Source file](/src/tools/analyticsConversationsAggregates.ts).
+
+### Input
+
+- `query`
+  - `ConversationAggregationQuery` JSON payload for `POST /api/v2/analytics/conversations/aggregates/query` (for example: `interval`, `metrics`, `groupBy`, `filter`, `granularity`)
+
+### Security
+
+Required Permissions:
+
+- `analytics:conversationAggregate:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/conversations/aggregates/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-conversations-aggregates-query)
+
+## Analytics Conversations Aggregates Async
+
+**Tool name:** `analytics_conversations_aggregates_async`
+
+Creates and reads asynchronous conversations aggregates jobs. Use `create_job` for large queries, then poll `get_job` and page through `get_results` with `cursor`.
+
+[Source file](/src/tools/analyticsConversationsAggregatesAsync.ts).
+
+### Input
+
+- `operation`
+  - One of: `create_job`, `get_job`, `get_results`
+- `query`
+  - `ConversationAsyncAggregationQuery` JSON payload (required for `create_job`)
+- `jobId`
+  - Async job ID (required for `get_job` and `get_results`)
+- `cursor`
+  - Optional page cursor for `get_results`
+
+### Security
+
+Required Permissions:
+
+- `analytics:conversationAggregate:view`
+
+Platform API endpoints used:
+
+- [POST /api/v2/analytics/conversations/aggregates/jobs](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-conversations-aggregates-jobs)
+- [GET /api/v2/analytics/conversations/aggregates/jobs/{jobId}](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-conversations-aggregates-jobs--jobId-)
+- [GET /api/v2/analytics/conversations/aggregates/jobs/{jobId}/results](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-conversations-aggregates-jobs--jobId--results)
+
+## Analytics Users Aggregates
+
+**Tool name:** `analytics_users_aggregates`
+
+Runs a synchronous users aggregates query in Genesys Cloud and returns aggregate metrics by user-related dimensions.
+
+[Source file](/src/tools/analyticsUsersAggregates.ts).
+
+### Input
+
+- `query`
+  - `UserAggregationQuery` JSON payload for `POST /api/v2/analytics/users/aggregates/query` (for example: `interval`, `metrics`, `groupBy`, `filter`, `granularity`)
+
+### Security
+
+Required Permissions:
+
+- `analytics:userAggregate:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/users/aggregates/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-users-aggregates-query)
+
+## Analytics Queues Observations
+
+**Tool name:** `analytics_queues_observations`
+
+Runs a real-time queue observations query in Genesys Cloud and returns current queue state metrics.
+
+[Source file](/src/tools/analyticsQueuesObservations.ts).
+
+### Input
+
+- `query`
+  - `QueueObservationQuery` JSON payload for `POST /api/v2/analytics/queues/observations/query` (for example: `filter`, `metrics`, `detailMetrics`)
+
+### Security
+
+Required Permissions:
+
+- `analytics:queueObservation:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/queues/observations/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-queues-observations-query)
+
+## Analytics Users Observations
+
+**Tool name:** `analytics_users_observations`
+
+Runs a real-time user observations query in Genesys Cloud and returns current user state metrics.
+
+[Source file](/src/tools/analyticsUsersObservations.ts).
+
+### Input
+
+- `query`
+  - `UserObservationQuery` JSON payload for `POST /api/v2/analytics/users/observations/query` (for example: `filter`, `metrics`, `detailMetrics`)
+
+### Security
+
+Required Permissions:
+
+- `analytics:userObservation:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/users/observations/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-users-observations-query)
+
 ## Sample Conversations By Queue
 
 **Tool name:** `sample_conversations_by_queue`

@@ -4,6 +4,11 @@ import { LRUCache } from "lru-cache";
 import platformClient from "purecloud-platform-client-v2";
 import { OAuthClientCredentialsWrapper } from "./auth/OAuthClientCredentialsWrapper.js";
 import { createConfigRetriever } from "./createConfigRetriever.js";
+import { analyticsConversationsAggregates } from "./tools/analyticsConversationsAggregates.js";
+import { analyticsConversationsAggregatesAsync } from "./tools/analyticsConversationsAggregatesAsync.js";
+import { analyticsQueuesObservations } from "./tools/analyticsQueuesObservations.js";
+import { analyticsUsersAggregates } from "./tools/analyticsUsersAggregates.js";
+import { analyticsUsersObservations } from "./tools/analyticsUsersObservations.js";
 import { conversationSentiment } from "./tools/conversationSentiment/conversationSentiment.js";
 import { conversationTopics } from "./tools/conversationTopics/conversationTopics.js";
 import { conversationTranscript } from "./tools/conversationTranscript/conversationTranscript.js";
@@ -78,6 +83,71 @@ server.registerTool(
     annotations: queryQueueVolumesTool.schema.annotations,
   },
   withAuth(queryQueueVolumesTool.call),
+);
+
+const analyticsConversationsAggregatesTool = analyticsConversationsAggregates({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsConversationsAggregatesTool.schema.name,
+  {
+    description: analyticsConversationsAggregatesTool.schema.description,
+    inputSchema: analyticsConversationsAggregatesTool.schema.paramsSchema.shape,
+    annotations: analyticsConversationsAggregatesTool.schema.annotations,
+  },
+  withAuth(analyticsConversationsAggregatesTool.call),
+);
+
+const analyticsConversationsAggregatesAsyncTool =
+  analyticsConversationsAggregatesAsync({
+    analyticsApi,
+  });
+server.registerTool(
+  analyticsConversationsAggregatesAsyncTool.schema.name,
+  {
+    description: analyticsConversationsAggregatesAsyncTool.schema.description,
+    inputSchema:
+      analyticsConversationsAggregatesAsyncTool.schema.paramsSchema.shape,
+    annotations: analyticsConversationsAggregatesAsyncTool.schema.annotations,
+  },
+  withAuth(analyticsConversationsAggregatesAsyncTool.call),
+);
+
+const analyticsUsersAggregatesTool = analyticsUsersAggregates({ analyticsApi });
+server.registerTool(
+  analyticsUsersAggregatesTool.schema.name,
+  {
+    description: analyticsUsersAggregatesTool.schema.description,
+    inputSchema: analyticsUsersAggregatesTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersAggregatesTool.schema.annotations,
+  },
+  withAuth(analyticsUsersAggregatesTool.call),
+);
+
+const analyticsQueuesObservationsTool = analyticsQueuesObservations({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsQueuesObservationsTool.schema.name,
+  {
+    description: analyticsQueuesObservationsTool.schema.description,
+    inputSchema: analyticsQueuesObservationsTool.schema.paramsSchema.shape,
+    annotations: analyticsQueuesObservationsTool.schema.annotations,
+  },
+  withAuth(analyticsQueuesObservationsTool.call),
+);
+
+const analyticsUsersObservationsTool = analyticsUsersObservations({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsUsersObservationsTool.schema.name,
+  {
+    description: analyticsUsersObservationsTool.schema.description,
+    inputSchema: analyticsUsersObservationsTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersObservationsTool.schema.annotations,
+  },
+  withAuth(analyticsUsersObservationsTool.call),
 );
 
 const voiceCallQualityTool = voiceCallQuality({ analyticsApi });
