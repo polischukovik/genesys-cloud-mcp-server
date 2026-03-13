@@ -48,7 +48,8 @@ Add this to your `claude_desktop_config.json`:
       "env": {
         "GENESYSCLOUD_REGION": "<PUT REGION HERE>",
         "GENESYSCLOUD_OAUTHCLIENT_ID": "<PUT OAUTHCLIENT ID HERE>",
-        "GENESYSCLOUD_OAUTHCLIENT_SECRET": "<PUT OAUTHCLIENT SECRET HERE>"
+        "GENESYSCLOUD_OAUTHCLIENT_SECRET": "<PUT OAUTHCLIENT SECRET HERE>",
+        "GENESYSCLOUD_AUTH_MODE": "client_credentials"
       }
     }
   }
@@ -68,7 +69,8 @@ Add below to your `.gemini/settings.json` file. You can read more about the [set
       "env": {
         "GENESYSCLOUD_REGION": "${GENESYSCLOUD_REGION}",
         "GENESYSCLOUD_OAUTHCLIENT_ID": "${GENESYSCLOUD_OAUTHCLIENT_ID}",
-        "GENESYSCLOUD_OAUTHCLIENT_SECRET": "${GENESYSCLOUD_OAUTHCLIENT_SECRET}"
+        "GENESYSCLOUD_OAUTHCLIENT_SECRET": "${GENESYSCLOUD_OAUTHCLIENT_SECRET}",
+        "GENESYSCLOUD_AUTH_MODE": "client_credentials"
       }
     }
   }
@@ -77,7 +79,14 @@ Add below to your `.gemini/settings.json` file. You can read more about the [set
 
 ## Authentication
 
-This currently only supports a stdio server. To configure authentication you'll need to:
+This currently only supports a stdio server. Authentication supports two modes:
+
+1. `client_credentials` (default when `GENESYSCLOUD_ACCESS_TOKEN` is not provided)
+2. `access_token` (for delegated OAuth Code/PKCE style flows where the caller supplies a user access token)
+
+### Client Credentials Mode
+
+To configure OAuth Client Credentials authentication you'll need to:
 
 1. Create an OAuth Client in Genesys Cloud
 2. Assign the permissions to it for the tools you want to be used
@@ -85,6 +94,22 @@ This currently only supports a stdio server. To configure authentication you'll 
    - `GENESYSCLOUD_REGION`
    - `GENESYSCLOUD_OAUTHCLIENT_ID`
    - `GENESYSCLOUD_OAUTHCLIENT_SECRET`
+   - Optional: `GENESYSCLOUD_AUTH_MODE=client_credentials`
+
+### Access Token Mode (Delegated User Token)
+
+For delegated, on-behalf-of-user calls:
+
+1. Obtain a valid Genesys Cloud user access token externally (e.g. OAuth Code/PKCE flow)
+2. Provide the following environment variables when referencing the server:
+   - `GENESYSCLOUD_REGION`
+   - `GENESYSCLOUD_ACCESS_TOKEN`
+   - `GENESYSCLOUD_AUTH_MODE=access_token` (recommended for explicitness)
+
+If `GENESYSCLOUD_AUTH_MODE` is omitted, the server uses `auto` mode:
+
+- If `GENESYSCLOUD_ACCESS_TOKEN` is set, it uses access-token mode
+- Otherwise, it falls back to client credentials mode
 
 ## Development
 
