@@ -1,5 +1,6 @@
 import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
+import { userAggregationQuerySchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
 import { errorResult } from "./utils/errorResult.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
@@ -13,11 +14,9 @@ export interface ToolDependencies {
 }
 
 const paramsSchema = z.object({
-  query: z
-    .record(z.unknown())
-    .describe(
-      "UserAggregationQuery payload for POST /api/v2/analytics/users/aggregates/query. Example: { interval, metrics, groupBy?, filter?, granularity? }",
-    ),
+  query: userAggregationQuerySchema.describe(
+    "UserAggregationQuery payload for POST /api/v2/analytics/users/aggregates/query.",
+  ),
 });
 
 function formatErrorMessage(error: unknown): string {

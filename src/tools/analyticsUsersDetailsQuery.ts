@@ -1,5 +1,6 @@
 import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
+import { usersDetailsQuerySchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
 import { errorResult } from "./utils/errorResult.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
@@ -10,11 +11,9 @@ export interface ToolDependencies {
 }
 
 const paramsSchema = z.object({
-  query: z
-    .record(z.unknown())
-    .describe(
-      "UserDetailsQuery payload for POST /api/v2/analytics/users/details/query. Example: { interval, userFilters?, presenceFilters?, routingStatusFilters?, order?, paging?, presenceAggregations?, routingStatusAggregations? }",
-    ),
+  query: usersDetailsQuerySchema.describe(
+    "UserDetailsQuery payload for POST /api/v2/analytics/users/details/query.",
+  ),
 });
 
 function formatErrorMessage(error: unknown): string {

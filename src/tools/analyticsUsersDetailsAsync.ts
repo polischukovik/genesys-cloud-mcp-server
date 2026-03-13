@@ -1,5 +1,6 @@
 import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
+import { asyncUsersDetailsQuerySchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
 import { errorResult } from "./utils/errorResult.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
@@ -20,8 +21,7 @@ const paramsSchema = z.object({
     .describe(
       "Operation to run: create_job creates an async users details job, get_job checks job status, get_results returns paged job results",
     ),
-  query: z
-    .record(z.unknown())
+  query: asyncUsersDetailsQuerySchema
     .optional()
     .describe(
       "AsyncUserDetailsQuery payload. Required when operation is create_job",
