@@ -41,7 +41,7 @@ export const analyticsConversationsAggregates: ToolFactory<
       name: "analytics_conversations_aggregates",
       annotations: { title: "Analytics Conversations Aggregates" },
       description:
-        "Runs a synchronous conversations aggregates query in Genesys Cloud and returns aggregate metrics grouped and filtered by the provided query payload.",
+        "Runs a synchronous conversations aggregates query and returns interval-based metrics grouped and filtered by conversation dimensions.",
       paramsSchema,
     },
     call: async ({ query }) => {

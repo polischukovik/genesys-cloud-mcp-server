@@ -24,9 +24,14 @@ Each tool section includes:
 |---|---|---|
 | [Analytics Conversations Aggregates](#analytics-conversations-aggregates) | `analytics_conversations_aggregates` | `query` (`ConversationAggregationQuery`) |
 | [Analytics Conversations Aggregates Async](#analytics-conversations-aggregates-async) | `analytics_conversations_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?` |
+| [Analytics Conversations Details Query](#analytics-conversations-details-query) | `analytics_conversations_details_query` | `query` (`ConversationQuery`) |
+| [Analytics Conversations Details Async](#analytics-conversations-details-async) | `analytics_conversations_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?` |
 | [Analytics Users Aggregates](#analytics-users-aggregates) | `analytics_users_aggregates` | `query` (`UserAggregationQuery`) |
+| [Analytics Users Details Query](#analytics-users-details-query) | `analytics_users_details_query` | `query` (`UserDetailsQuery`) |
+| [Analytics Users Details Async](#analytics-users-details-async) | `analytics_users_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?` |
 | [Analytics Queues Observations](#analytics-queues-observations) | `analytics_queues_observations` | `query` (`QueueObservationQuery`) |
 | [Analytics Users Observations](#analytics-users-observations) | `analytics_users_observations` | `query` (`UserObservationQuery`) |
+| [Analytics Transcripts Aggregates](#analytics-transcripts-aggregates) | `analytics_transcripts_aggregates` | `query` (`TranscriptAggregationQuery`) |
 
 ### Conversation Intelligence
 
@@ -48,7 +53,7 @@ Each tool section includes:
 
 **Tool name:** `search_queues`
 
-Searches for routing queues based on their name, allowing for wildcard searches. Returns a paginated list of matching queues, including their Name, ID, Description (if available), and Member Count (if available). Also provides pagination details like current page, page size, total results found, and total pages available. Useful for finding specific queue IDs, checking queue configurations, or listing available queues.
+Finds routing queues by name (supports wildcards) and returns queue IDs, names, optional descriptions/member counts, and pagination metadata.
 [Source file](/src/tools/searchQueues.ts).
 
 ### Inputs
@@ -74,7 +79,7 @@ Platform API endpoint used:
 
 **Tool name:** `query_queue_volumes`
 
-Returns a breakdown of how many conversations occurred in each specified queue between two dates. Useful for comparing workload across queues. MAX 300 queue IDs.
+Returns conversation counts for each queue ID in the requested interval, useful for queue workload comparisons and trend snapshots.
 
 [Source file](/src/tools/queryQueueVolumes/queryQueueVolumes.ts).
 
@@ -103,7 +108,7 @@ Platform API endpoints used:
 
 **Tool name:** `analytics_conversations_aggregates`
 
-Runs a synchronous conversations aggregates query in Genesys Cloud and returns aggregate metrics grouped and filtered by the provided query payload.
+Runs a synchronous conversations aggregates query and returns interval-based metrics grouped and filtered by conversation dimensions.
 
 [Source file](/src/tools/analyticsConversationsAggregates.ts).
 
@@ -126,7 +131,7 @@ Platform API endpoint used:
 
 **Tool name:** `analytics_conversations_aggregates_async`
 
-Creates and reads asynchronous conversations aggregates jobs. Use `create_job` for large queries, then poll `get_job` and page through `get_results` with `cursor`.
+Creates and reads asynchronous conversations aggregates jobs for large queries. Use `create_job`, then poll `get_job` and page `get_results`.
 
 [Source file](/src/tools/analyticsConversationsAggregatesAsync.ts).
 
@@ -157,7 +162,7 @@ Platform API endpoints used:
 
 **Tool name:** `analytics_users_aggregates`
 
-Runs a synchronous users aggregates query in Genesys Cloud and returns aggregate metrics by user-related dimensions.
+Runs a synchronous users aggregates query and returns interval-based metrics grouped and filtered by user dimensions.
 
 [Source file](/src/tools/analyticsUsersAggregates.ts).
 
@@ -176,11 +181,146 @@ Platform API endpoint used:
 
 - [POST /api/v2/analytics/users/aggregates/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-users-aggregates-query)
 
+## Analytics Conversations Details Query
+
+**Tool name:** `analytics_conversations_details_query`
+
+Runs a synchronous conversations details query and returns conversation-level records for the requested interval, filters, sorting, and paging.
+
+[Source file](/src/tools/analyticsConversationsDetailsQuery.ts).
+
+### Inputs
+
+- `query`
+  - `ConversationQuery` JSON payload for `POST /api/v2/analytics/conversations/details/query` (for example: `interval`, `conversationFilters`, `segmentFilters`, `order`, `orderBy`, `paging`)
+
+### Security
+
+Required permissions:
+
+- `analytics:conversationDetail:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/conversations/details/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-conversations-details-query)
+
+## Analytics Conversations Details Async
+
+**Tool name:** `analytics_conversations_details_async`
+
+Creates and reads asynchronous conversations details jobs. Use this for large result sets that exceed synchronous query limits.
+
+[Source file](/src/tools/analyticsConversationsDetailsAsync.ts).
+
+### Inputs
+
+- `operation`
+  - One of: `create_job`, `get_job`, `get_results`
+- `query`
+  - `AsyncConversationQuery` JSON payload (required for `create_job`)
+- `jobId`
+  - Async job ID (required for `get_job` and `get_results`)
+- `cursor`
+  - Optional page cursor for `get_results`
+- `pageSize`
+  - Optional page size for `get_results`
+
+### Security
+
+Required permissions:
+
+- `analytics:conversationDetail:view`
+
+Platform API endpoints used:
+
+- [POST /api/v2/analytics/conversations/details/jobs](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-conversations-details-jobs)
+- [GET /api/v2/analytics/conversations/details/jobs/{jobId}](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-conversations-details-jobs--jobId-)
+- [GET /api/v2/analytics/conversations/details/jobs/{jobId}/results](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-conversations-details-jobs--jobId--results)
+
+## Analytics Users Details Query
+
+**Tool name:** `analytics_users_details_query`
+
+Runs a synchronous users details query and returns user-level analytics rows with optional presence and routing status aggregations.
+
+[Source file](/src/tools/analyticsUsersDetailsQuery.ts).
+
+### Inputs
+
+- `query`
+  - `UserDetailsQuery` JSON payload for `POST /api/v2/analytics/users/details/query` (for example: `interval`, `userFilters`, `presenceFilters`, `routingStatusFilters`, `paging`)
+
+### Security
+
+Required permissions:
+
+- `analytics:userDetail:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/users/details/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-users-details-query)
+
+## Analytics Users Details Async
+
+**Tool name:** `analytics_users_details_async`
+
+Creates and reads asynchronous users details jobs. Use this for high-volume user analytics queries that need paged retrieval.
+
+[Source file](/src/tools/analyticsUsersDetailsAsync.ts).
+
+### Inputs
+
+- `operation`
+  - One of: `create_job`, `get_job`, `get_results`
+- `query`
+  - `AsyncUserDetailsQuery` JSON payload (required for `create_job`)
+- `jobId`
+  - Async job ID (required for `get_job` and `get_results`)
+- `cursor`
+  - Optional page cursor for `get_results`
+- `pageSize`
+  - Optional page size for `get_results`
+
+### Security
+
+Required permissions:
+
+- `analytics:userDetail:view`
+
+Platform API endpoints used:
+
+- [POST /api/v2/analytics/users/details/jobs](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-users-details-jobs)
+- [GET /api/v2/analytics/users/details/jobs/{jobId}](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-users-details-jobs--jobId-)
+- [GET /api/v2/analytics/users/details/jobs/{jobId}/results](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#get-api-v2-analytics-users-details-jobs--jobId--results)
+
+## Analytics Transcripts Aggregates
+
+**Tool name:** `analytics_transcripts_aggregates`
+
+Runs a transcript aggregates query and returns speech and text analytics metrics grouped by the requested transcript dimensions.
+
+[Source file](/src/tools/analyticsTranscriptsAggregates.ts).
+
+### Inputs
+
+- `query`
+  - `TranscriptAggregationQuery` JSON payload for `POST /api/v2/analytics/transcripts/aggregates/query` (for example: `interval`, `metrics`, `groupBy`, `filter`, `granularity`)
+
+### Security
+
+Required permissions:
+
+- `analytics:speechAndTextAnalyticsAggregates:view`
+
+Platform API endpoint used:
+
+- [POST /api/v2/analytics/transcripts/aggregates/query](https://developer.genesys.cloud/analyticsdatamanagement/analytics/analytics-apis#post-api-v2-analytics-transcripts-aggregates-query)
+
 ## Analytics Queues Observations
 
 **Tool name:** `analytics_queues_observations`
 
-Runs a real-time queue observations query in Genesys Cloud and returns current queue state metrics.
+Runs a real-time queue observations query and returns current queue state metrics such as waiting, interacting, and availability indicators.
 
 [Source file](/src/tools/analyticsQueuesObservations.ts).
 
@@ -203,7 +343,7 @@ Platform API endpoint used:
 
 **Tool name:** `analytics_users_observations`
 
-Runs a real-time user observations query in Genesys Cloud and returns current user state metrics.
+Runs a real-time user observations query and returns current user state metrics such as presence, routing status, and workload indicators.
 
 [Source file](/src/tools/analyticsUsersObservations.ts).
 
@@ -226,7 +366,7 @@ Platform API endpoint used:
 
 **Tool name:** `sample_conversations_by_queue`
 
-Retrieves conversation analytics for a specific queue between two dates, returning a representative sample of conversation IDs. Useful for reporting, investigation, or summarisation.
+Returns an evenly sampled set of conversation IDs for a queue and date range, useful for QA spot checks, summaries, and investigations.
 
 [Source file](/src/tools/sampleConversationsByQueue/sampleConversationsByQueue.ts).
 
@@ -255,7 +395,7 @@ Platform API endpoints used:
 
 **Tool name:** `voice_call_quality`
 
-Retrieves voice call quality metrics for one or more conversations by ID. This tool specifically focuses on voice interactions and returns the minimum Mean Opinion Score (MOS) observed in each conversation, helping identify degraded or poor-quality voice calls.
+Retrieves minimum voice MOS for each conversation ID and classifies quality into Poor/Acceptable/Excellent to help identify degraded calls.
 
 Read more [about MOS scores and how they're determined](https://developer.genesys.cloud/analyticsdatamanagement/analytics/detail/call-quality).
 
@@ -280,7 +420,7 @@ Platform API endpoint used:
 
 **Tool name:** `conversation_sentiment`
 
-Retrieves sentiment analysis scores for one or more conversations. Sentiment is evaluated based on customer phrases, categorized as positive, neutral, or negative. The result includes both a numeric sentiment score (-100 to 100) and an interpreted sentiment label.
+Returns customer sentiment for each conversation ID as a normalized score (-100 to 100) with a human-readable sentiment label.
 
 [Source file](/src/tools/conversationSentiment/conversationSentiment.ts).
 
@@ -304,7 +444,7 @@ Platform API endpoint used:
 
 **Tool name:** `conversation_topics`
 
-Retrieves Speech and Text Analytics topics detected for a specific conversation. Topics represent business-level intents (e.g. cancellation, billing enquiry) inferred from recognised phrases in the customer-agent interaction.
+Lists detected Speech and Text Analytics topics for a conversation, including topic names and descriptions inferred from transcript content.
 
 Read more [about programs, topics, and phrases](https://help.mypurecloud.com/articles/about-programs-topics-and-phrases/).
 
@@ -333,7 +473,7 @@ Platform API endpoints used:
 
 **Tool name:** `search_voice_conversations`
 
-Searches for voice conversations within a specified time window, optionally filtering by phone number. Returns a paginated list of conversation metadata for use in further analysis or tool calls.
+Searches inbound and outbound voice conversations for a time window (optional ANI filter) and returns paged conversation IDs with call duration.
 
 [Source file](/src/tools/searchVoiceConversations.ts).
 
@@ -364,7 +504,7 @@ Platform API endpoints used:
 
 **Tool name:** `conversation_transcript`
 
-Retrieves a structured transcript of the conversation, including speaker labels, utterance timestamps, and sentiment annotations where available. The transcript is formatted as a time-aligned list of utterances attributed to each participant (e.g., customer or agent).
+Retrieves a structured transcript with speaker labels, utterance timing, and available sentiment markers for customer/agent analysis.
 
 [Source file](/src/tools/conversationTranscript/conversationTranscript.ts).
 
@@ -389,7 +529,7 @@ Platform API endpoints used:
 
 **Tool name:** `oauth_clients`
 
-Retrieves a list of all OAuth clients, including their associated roles and divisions. This tool is useful for auditing and managing OAuth clients in the Genesys Cloud organization.
+Lists OAuth clients with scopes, role assignments, and (when permitted) role/division names for governance and access audits.
 
 [Source file](/src/tools/oauthClients/oauthClients.ts).
 
@@ -411,7 +551,7 @@ Platform API endpoints used:
 
 **Tool name:** `oauth_client_usage`
 
-Retrieves the usage of an OAuth Client for a given period. It returns the total number of requests and a breakdown of Platform API endpoints used by the client.
+Returns API usage for an OAuth client in a time range, including total request count and endpoint-level breakdown.
 
 [Source file](/src/tools/oauthClientUsage/oauthClientUsage.ts).
 

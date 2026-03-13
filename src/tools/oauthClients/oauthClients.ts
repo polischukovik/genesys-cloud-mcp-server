@@ -53,7 +53,7 @@ export const oauthClients: ToolFactory<
       name: "oauth_clients",
       annotations: { title: "List OAuth Clients" },
       description:
-        "Retrieves a list of all OAuth clients, including their associated roles and divisions. This tool is useful for auditing and managing OAuth clients in the Genesys Cloud organization.",
+        "Lists OAuth clients with scopes, role assignments, and (when permitted) role/division names for governance and access audits.",
       paramsSchema,
     },
     call: async () => {

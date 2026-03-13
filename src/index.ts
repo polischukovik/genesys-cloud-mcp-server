@@ -6,8 +6,13 @@ import { OAuthClientCredentialsWrapper } from "./auth/OAuthClientCredentialsWrap
 import { createConfigRetriever } from "./createConfigRetriever.js";
 import { analyticsConversationsAggregates } from "./tools/analyticsConversationsAggregates.js";
 import { analyticsConversationsAggregatesAsync } from "./tools/analyticsConversationsAggregatesAsync.js";
+import { analyticsConversationsDetailsAsync } from "./tools/analyticsConversationsDetailsAsync.js";
+import { analyticsConversationsDetailsQuery } from "./tools/analyticsConversationsDetailsQuery.js";
 import { analyticsQueuesObservations } from "./tools/analyticsQueuesObservations.js";
+import { analyticsTranscriptsAggregates } from "./tools/analyticsTranscriptsAggregates.js";
 import { analyticsUsersAggregates } from "./tools/analyticsUsersAggregates.js";
+import { analyticsUsersDetailsAsync } from "./tools/analyticsUsersDetailsAsync.js";
+import { analyticsUsersDetailsQuery } from "./tools/analyticsUsersDetailsQuery.js";
 import { analyticsUsersObservations } from "./tools/analyticsUsersObservations.js";
 import { conversationSentiment } from "./tools/conversationSentiment/conversationSentiment.js";
 import { conversationTopics } from "./tools/conversationTopics/conversationTopics.js";
@@ -122,6 +127,75 @@ server.registerTool(
     annotations: analyticsUsersAggregatesTool.schema.annotations,
   },
   withAuth(analyticsUsersAggregatesTool.call),
+);
+
+const analyticsConversationsDetailsQueryTool =
+  analyticsConversationsDetailsQuery({
+    analyticsApi,
+  });
+server.registerTool(
+  analyticsConversationsDetailsQueryTool.schema.name,
+  {
+    description: analyticsConversationsDetailsQueryTool.schema.description,
+    inputSchema:
+      analyticsConversationsDetailsQueryTool.schema.paramsSchema.shape,
+    annotations: analyticsConversationsDetailsQueryTool.schema.annotations,
+  },
+  withAuth(analyticsConversationsDetailsQueryTool.call),
+);
+
+const analyticsConversationsDetailsAsyncTool =
+  analyticsConversationsDetailsAsync({
+    analyticsApi,
+  });
+server.registerTool(
+  analyticsConversationsDetailsAsyncTool.schema.name,
+  {
+    description: analyticsConversationsDetailsAsyncTool.schema.description,
+    inputSchema:
+      analyticsConversationsDetailsAsyncTool.schema.paramsSchema.shape,
+    annotations: analyticsConversationsDetailsAsyncTool.schema.annotations,
+  },
+  withAuth(analyticsConversationsDetailsAsyncTool.call),
+);
+
+const analyticsUsersDetailsQueryTool = analyticsUsersDetailsQuery({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsUsersDetailsQueryTool.schema.name,
+  {
+    description: analyticsUsersDetailsQueryTool.schema.description,
+    inputSchema: analyticsUsersDetailsQueryTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersDetailsQueryTool.schema.annotations,
+  },
+  withAuth(analyticsUsersDetailsQueryTool.call),
+);
+
+const analyticsUsersDetailsAsyncTool = analyticsUsersDetailsAsync({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsUsersDetailsAsyncTool.schema.name,
+  {
+    description: analyticsUsersDetailsAsyncTool.schema.description,
+    inputSchema: analyticsUsersDetailsAsyncTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersDetailsAsyncTool.schema.annotations,
+  },
+  withAuth(analyticsUsersDetailsAsyncTool.call),
+);
+
+const analyticsTranscriptsAggregatesTool = analyticsTranscriptsAggregates({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsTranscriptsAggregatesTool.schema.name,
+  {
+    description: analyticsTranscriptsAggregatesTool.schema.description,
+    inputSchema: analyticsTranscriptsAggregatesTool.schema.paramsSchema.shape,
+    annotations: analyticsTranscriptsAggregatesTool.schema.annotations,
+  },
+  withAuth(analyticsTranscriptsAggregatesTool.call),
 );
 
 const analyticsQueuesObservationsTool = analyticsQueuesObservations({

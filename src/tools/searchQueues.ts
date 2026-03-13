@@ -87,7 +87,7 @@ export const searchQueues: ToolFactory<
       name: "search_queues",
       annotations: { title: "Search Queues" },
       description:
-        "Searches for routing queues based on their name, allowing for wildcard searches. Returns a paginated list of matching queues, including their Name, ID, Description (if available), and Member Count (if available). Also provides pagination details like current page, page size, total results found, and total pages available. Useful for finding specific queue IDs, checking queue configurations, or listing available queues.",
+        "Finds routing queues by name (supports wildcards) and returns queue IDs, names, optional descriptions/member counts, and pagination metadata.",
       paramsSchema,
     },
     call: async ({ name, pageNumber = 1, pageSize = 100 }) => {

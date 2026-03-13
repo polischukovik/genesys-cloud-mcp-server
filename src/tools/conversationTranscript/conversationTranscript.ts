@@ -115,7 +115,7 @@ export const conversationTranscript: ToolFactory<
       name: "conversation_transcript",
       annotations: { title: "Conversation Transcript" },
       description:
-        "Retrieves a structured transcript of the conversation, including speaker labels, utterance timestamps, and sentiment annotations where available. The transcript is formatted as a time-aligned list of utterances attributed to each participant (e.g., customer or agent)",
+        "Retrieves a structured transcript with speaker labels, utterance timing, and available sentiment markers for customer/agent analysis.",
       paramsSchema,
     },
     call: async ({ conversationId }) => {

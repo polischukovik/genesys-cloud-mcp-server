@@ -41,7 +41,7 @@ export const analyticsUsersObservations: ToolFactory<
       name: "analytics_users_observations",
       annotations: { title: "Analytics Users Observations" },
       description:
-        "Runs a real-time user observations query in Genesys Cloud and returns current user state metrics.",
+        "Runs a real-time user observations query and returns current user state metrics such as presence, routing status, and workload indicators.",
       paramsSchema,
     },
     call: async ({ query }) => {

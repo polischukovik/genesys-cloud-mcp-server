@@ -45,7 +45,7 @@ export const sampleConversationsByQueue: ToolFactory<
       name: "sample_conversations_by_queue",
       annotations: { title: "Sample Conversations by Queue" },
       description:
-        "Retrieves conversation analytics for a specific queue between two dates, returning a representative sample of conversation IDs. Useful for reporting, investigation, or summarisation.",
+        "Returns an evenly sampled set of conversation IDs for a queue and date range, useful for QA spot checks, summaries, and investigations.",
       paramsSchema,
     },
     call: async ({ queueId, startDate, endDate }) => {

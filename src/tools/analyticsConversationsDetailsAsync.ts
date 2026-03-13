@@ -8,9 +8,9 @@ import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
 export interface ToolDependencies {
   readonly analyticsApi: Pick<
     AnalyticsApi,
-    | "postAnalyticsConversationsAggregatesJobs"
-    | "getAnalyticsConversationsAggregatesJob"
-    | "getAnalyticsConversationsAggregatesJobResults"
+    | "postAnalyticsConversationsDetailsJobs"
+    | "getAnalyticsConversationsDetailsJob"
+    | "getAnalyticsConversationsDetailsJobResults"
   >;
 }
 
@@ -18,13 +18,13 @@ const paramsSchema = z.object({
   operation: z
     .enum(["create_job", "get_job", "get_results"])
     .describe(
-      "Operation to run: create_job creates an async job, get_job checks job status, get_results returns paged job results",
+      "Operation to run: create_job creates an async details job, get_job checks job status, get_results returns paged job results",
     ),
   query: z
     .record(z.unknown())
     .optional()
     .describe(
-      "ConversationAsyncAggregationQuery payload. Required when operation is create_job",
+      "AsyncConversationQuery payload. Required when operation is create_job",
     ),
   jobId: z
     .string()
@@ -35,36 +35,41 @@ const paramsSchema = z.object({
   cursor: z
     .string()
     .optional()
-    .describe(
-      "Optional pagination cursor for get_results, from the previous page response",
-    ),
+    .describe("Optional pagination cursor for get_results"),
+  pageSize: z
+    .number()
+    .int()
+    .positive()
+    .max(100)
+    .optional()
+    .describe("Optional page size for get_results. Maximum value is 100"),
 });
 
 function formatErrorMessage(error: unknown): string {
   if (isUnauthorizedError(error)) {
-    return "Failed to run async conversations aggregates operation: Unauthorized access. Please check API credentials or permissions";
+    return "Failed to run async conversations details operation: Unauthorized access. Please check API credentials or permissions";
   }
 
   if (isMissingPermissionsError(error)) {
-    return "Failed to run async conversations aggregates operation: Missing required permissions";
+    return "Failed to run async conversations details operation: Missing required permissions";
   }
 
-  return `Failed to run async conversations aggregates operation: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
+  return `Failed to run async conversations details operation: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 }
 
-export const analyticsConversationsAggregatesAsync: ToolFactory<
+export const analyticsConversationsDetailsAsync: ToolFactory<
   ToolDependencies,
   typeof paramsSchema
 > = ({ analyticsApi }) =>
   createTool({
     schema: {
-      name: "analytics_conversations_aggregates_async",
-      annotations: { title: "Analytics Conversations Aggregates Async" },
+      name: "analytics_conversations_details_async",
+      annotations: { title: "Analytics Conversations Details Async" },
       description:
-        "Creates and reads asynchronous conversations aggregates jobs for large queries. Use create_job, then poll get_job and page get_results.",
+        "Creates and reads asynchronous conversations details jobs. Use this for large result sets that exceed synchronous query limits.",
       paramsSchema,
     },
-    call: async ({ operation, query, jobId, cursor }) => {
+    call: async ({ operation, query, jobId, cursor, pageSize }) => {
       try {
         if (operation === "create_job") {
           if (!query) {
@@ -74,8 +79,8 @@ export const analyticsConversationsAggregatesAsync: ToolFactory<
           }
 
           const response =
-            await analyticsApi.postAnalyticsConversationsAggregatesJobs(
-              query as unknown as Models.ConversationAsyncAggregationQuery,
+            await analyticsApi.postAnalyticsConversationsDetailsJobs(
+              query as unknown as Models.AsyncConversationQuery,
             );
 
           return {
@@ -96,7 +101,7 @@ export const analyticsConversationsAggregatesAsync: ToolFactory<
 
         if (operation === "get_job") {
           const response =
-            await analyticsApi.getAnalyticsConversationsAggregatesJob(jobId);
+            await analyticsApi.getAnalyticsConversationsDetailsJob(jobId);
 
           return {
             content: [
@@ -109,9 +114,9 @@ export const analyticsConversationsAggregatesAsync: ToolFactory<
         }
 
         const response =
-          await analyticsApi.getAnalyticsConversationsAggregatesJobResults(
+          await analyticsApi.getAnalyticsConversationsDetailsJobResults(
             jobId,
-            cursor ? { cursor } : undefined,
+            cursor || pageSize ? { cursor, pageSize } : undefined,
           );
 
         return {

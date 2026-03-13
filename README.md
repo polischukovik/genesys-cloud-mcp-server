@@ -24,9 +24,14 @@ Full tool reference (detailed input payloads, permissions, and endpoints): [docs
 |---|---|---|
 | [Analytics Conversations Aggregates](docs/tools.md#analytics-conversations-aggregates) | `analytics_conversations_aggregates` | `query` (`ConversationAggregationQuery`) |
 | [Analytics Conversations Aggregates Async](docs/tools.md#analytics-conversations-aggregates-async) | `analytics_conversations_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?` |
+| [Analytics Conversations Details Query](docs/tools.md#analytics-conversations-details-query) | `analytics_conversations_details_query` | `query` (`ConversationQuery`) |
+| [Analytics Conversations Details Async](docs/tools.md#analytics-conversations-details-async) | `analytics_conversations_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?` |
 | [Analytics Users Aggregates](docs/tools.md#analytics-users-aggregates) | `analytics_users_aggregates` | `query` (`UserAggregationQuery`) |
+| [Analytics Users Details Query](docs/tools.md#analytics-users-details-query) | `analytics_users_details_query` | `query` (`UserDetailsQuery`) |
+| [Analytics Users Details Async](docs/tools.md#analytics-users-details-async) | `analytics_users_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?` |
 | [Analytics Queues Observations](docs/tools.md#analytics-queues-observations) | `analytics_queues_observations` | `query` (`QueueObservationQuery`) |
 | [Analytics Users Observations](docs/tools.md#analytics-users-observations) | `analytics_users_observations` | `query` (`UserObservationQuery`) |
+| [Analytics Transcripts Aggregates](docs/tools.md#analytics-transcripts-aggregates) | `analytics_transcripts_aggregates` | `query` (`TranscriptAggregationQuery`) |
 
 ### Conversation Intelligence
 

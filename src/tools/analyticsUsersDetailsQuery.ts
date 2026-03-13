@@ -6,50 +6,47 @@ import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsE
 import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
 
 export interface ToolDependencies {
-  readonly analyticsApi: Pick<
-    AnalyticsApi,
-    "postAnalyticsUsersAggregatesQuery"
-  >;
+  readonly analyticsApi: Pick<AnalyticsApi, "postAnalyticsUsersDetailsQuery">;
 }
 
 const paramsSchema = z.object({
   query: z
     .record(z.unknown())
     .describe(
-      "UserAggregationQuery payload for POST /api/v2/analytics/users/aggregates/query. Example: { interval, metrics, groupBy?, filter?, granularity? }",
+      "UserDetailsQuery payload for POST /api/v2/analytics/users/details/query. Example: { interval, userFilters?, presenceFilters?, routingStatusFilters?, order?, paging?, presenceAggregations?, routingStatusAggregations? }",
     ),
 });
 
 function formatErrorMessage(error: unknown): string {
   if (isUnauthorizedError(error)) {
-    return "Failed to run users aggregates query: Unauthorized access. Please check API credentials or permissions";
+    return "Failed to run users details query: Unauthorized access. Please check API credentials or permissions";
   }
 
   if (isMissingPermissionsError(error)) {
-    return "Failed to run users aggregates query: Missing required permissions";
+    return "Failed to run users details query: Missing required permissions";
   }
 
-  return `Failed to run users aggregates query: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
+  return `Failed to run users details query: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 }
 
-export const analyticsUsersAggregates: ToolFactory<
+export const analyticsUsersDetailsQuery: ToolFactory<
   ToolDependencies,
   typeof paramsSchema
 > = ({ analyticsApi }) =>
   createTool({
     schema: {
-      name: "analytics_users_aggregates",
-      annotations: { title: "Analytics Users Aggregates" },
+      name: "analytics_users_details_query",
+      annotations: { title: "Analytics Users Details Query" },
       description:
-        "Runs a synchronous users aggregates query and returns interval-based metrics grouped and filtered by user dimensions.",
+        "Runs a synchronous users details query and returns user-level analytics rows with optional presence and routing status aggregations.",
       paramsSchema,
     },
     call: async ({ query }) => {
-      let response: Models.UserAggregateQueryResponse;
+      let response: Models.AnalyticsUserDetailsQueryResponse;
 
       try {
-        response = await analyticsApi.postAnalyticsUsersAggregatesQuery(
-          query as unknown as Models.UserAggregationQuery,
+        response = await analyticsApi.postAnalyticsUsersDetailsQuery(
+          query as unknown as Models.UserDetailsQuery,
         );
       } catch (error: unknown) {
         return errorResult(formatErrorMessage(error));

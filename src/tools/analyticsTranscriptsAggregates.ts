@@ -8,7 +8,7 @@ import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
 export interface ToolDependencies {
   readonly analyticsApi: Pick<
     AnalyticsApi,
-    "postAnalyticsUsersAggregatesQuery"
+    "postAnalyticsTranscriptsAggregatesQuery"
   >;
 }
 
@@ -16,40 +16,40 @@ const paramsSchema = z.object({
   query: z
     .record(z.unknown())
     .describe(
-      "UserAggregationQuery payload for POST /api/v2/analytics/users/aggregates/query. Example: { interval, metrics, groupBy?, filter?, granularity? }",
+      "TranscriptAggregationQuery payload for POST /api/v2/analytics/transcripts/aggregates/query. Example: { interval, metrics, groupBy?, filter?, granularity? }",
     ),
 });
 
 function formatErrorMessage(error: unknown): string {
   if (isUnauthorizedError(error)) {
-    return "Failed to run users aggregates query: Unauthorized access. Please check API credentials or permissions";
+    return "Failed to run transcripts aggregates query: Unauthorized access. Please check API credentials or permissions";
   }
 
   if (isMissingPermissionsError(error)) {
-    return "Failed to run users aggregates query: Missing required permissions";
+    return "Failed to run transcripts aggregates query: Missing required permissions";
   }
 
-  return `Failed to run users aggregates query: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
+  return `Failed to run transcripts aggregates query: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
 }
 
-export const analyticsUsersAggregates: ToolFactory<
+export const analyticsTranscriptsAggregates: ToolFactory<
   ToolDependencies,
   typeof paramsSchema
 > = ({ analyticsApi }) =>
   createTool({
     schema: {
-      name: "analytics_users_aggregates",
-      annotations: { title: "Analytics Users Aggregates" },
+      name: "analytics_transcripts_aggregates",
+      annotations: { title: "Analytics Transcripts Aggregates" },
       description:
-        "Runs a synchronous users aggregates query and returns interval-based metrics grouped and filtered by user dimensions.",
+        "Runs a transcript aggregates query and returns speech and text analytics metrics grouped by the requested transcript dimensions.",
       paramsSchema,
     },
     call: async ({ query }) => {
-      let response: Models.UserAggregateQueryResponse;
+      let response: Models.TranscriptAggregateQueryResponse;
 
       try {
-        response = await analyticsApi.postAnalyticsUsersAggregatesQuery(
-          query as unknown as Models.UserAggregationQuery,
+        response = await analyticsApi.postAnalyticsTranscriptsAggregatesQuery(
+          query as unknown as Models.TranscriptAggregationQuery,
         );
       } catch (error: unknown) {
         return errorResult(formatErrorMessage(error));

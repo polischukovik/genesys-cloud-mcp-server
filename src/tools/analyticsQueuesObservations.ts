@@ -41,7 +41,7 @@ export const analyticsQueuesObservations: ToolFactory<
       name: "analytics_queues_observations",
       annotations: { title: "Analytics Queues Observations" },
       description:
-        "Runs a real-time queue observations query in Genesys Cloud and returns current queue state metrics.",
+        "Runs a real-time queue observations query and returns current queue state metrics such as waiting, interacting, and availability indicators.",
       paramsSchema,
     },
     call: async ({ query }) => {
