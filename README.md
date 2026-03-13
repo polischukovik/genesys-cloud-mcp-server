@@ -121,6 +121,17 @@ npm install
 npm run dev
 ```
 
+## Security and Pre-Commit Hygiene
+
+Before opening a PR or publishing your fork:
+
+1. Keep credentials in local environment only (`.env*`), never hardcode tokens/secrets.
+2. Remove local HTTP/debug capture files before commit because they may contain bearer tokens/cookies.
+3. Rotate any credential that was ever pasted into a terminal, chat, or captured log.
+4. Verify no sensitive changes are staged:
+   - `git status --short`
+   - `git diff -- . ':(exclude).env*'`
+
 ## Under active development
 
 This is part of [personal project](https://www.linkedin.com/posts/lucas-woodward-the-dev_genesys-genesyscloud-vertexai-activity-7321306518908280833-cWt8?utm_source=share&utm_medium=member_desktop&rcm=ACoAABsbo2wBcmnNqxYJ5UO9BrsfURZcVEtgLOU)
