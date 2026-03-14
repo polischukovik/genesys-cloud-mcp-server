@@ -1,9 +1,15 @@
-import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
+import type {
+  AnalyticsApi,
+  AuthorizationApi,
+  Models,
+  UsersApi,
+} from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { isoIntervalSchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
 import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
+import { resolveUsersAndDivisions } from "./utils/resolveUsersAndDivisions.js";
 import {
   errorEnvelopeResult,
   successEnvelopeResult,
@@ -22,6 +28,11 @@ export interface ToolDependencies {
   readonly analyticsApi: Pick<
     AnalyticsApi,
     "postAnalyticsConversationsAggregatesQuery"
+  >;
+  readonly usersApi: Pick<UsersApi, "getUsers">;
+  readonly authorizationApi: Pick<
+    AuthorizationApi,
+    "getAuthorizationDivisions"
   >;
 }
 
@@ -54,6 +65,18 @@ const paramsSchema = z.object({
     .boolean()
     .optional()
     .describe("When true, include the raw aggregate response payload"),
+  resolveUsers: z
+    .boolean()
+    .optional()
+    .describe(
+      "When true, resolves user IDs to user names and division metadata. Default: true",
+    ),
+  resolveDivisions: z
+    .boolean()
+    .optional()
+    .describe(
+      "When true, resolves division IDs to division names. Default: true",
+    ),
 });
 
 function formatErrorMessage(error: unknown): string {
@@ -124,7 +147,7 @@ function buildAgentFilter(
 export const kpiAgentPerformanceSummary: ToolFactory<
   ToolDependencies,
   typeof paramsSchema
-> = ({ analyticsApi }) =>
+> = ({ analyticsApi, usersApi, authorizationApi }) =>
   createTool({
     schema: {
       name: "kpi_agent_performance_summary",
@@ -140,6 +163,8 @@ export const kpiAgentPerformanceSummary: ToolFactory<
       queueIds,
       metrics,
       includeRawResponse,
+      resolveUsers = true,
+      resolveDivisions = true,
     }) => {
       const filter = buildAgentFilter(userIds, queueIds);
       const query: Models.ConversationAggregationQuery = {
@@ -207,24 +232,60 @@ export const kpiAgentPerformanceSummary: ToolFactory<
         };
       });
 
+      const resolution = await resolveUsersAndDivisions({
+        usersApi,
+        authorizationApi,
+        userIds: agentSummaries.map((summary) => summary.userId),
+        resolveUsers,
+        resolveDivisions,
+      });
+
+      const enrichedAgentSummaries = agentSummaries.map((summary) => {
+        const resolvedUser = resolution.usersById[summary.userId];
+
+        if (!resolvedUser) {
+          return summary;
+        }
+
+        return {
+          ...summary,
+          ...(resolvedUser.name ? { userName: resolvedUser.name } : {}),
+          ...(resolvedUser.divisionId
+            ? { divisionId: resolvedUser.divisionId }
+            : {}),
+          ...(resolvedUser.divisionName
+            ? { divisionName: resolvedUser.divisionName }
+            : {}),
+        };
+      });
+
       return successEnvelopeResult(
         {
           query,
-          agentSummaries,
+          agentSummaries: enrichedAgentSummaries,
           totals: {
-            connected: agentSummaries.reduce(
+            connected: enrichedAgentSummaries.reduce(
               (acc, summary) => acc + summary.connected,
               0,
             ),
-            answered: agentSummaries.reduce(
+            answered: enrichedAgentSummaries.reduce(
               (acc, summary) => acc + summary.answered,
               0,
             ),
           },
+          ...(Object.keys(resolution.usersById).length > 0
+            ? { resolvedUsers: resolution.usersById }
+            : {}),
+          ...(Object.keys(resolution.divisionsById).length > 0
+            ? { resolvedDivisions: resolution.divisionsById }
+            : {}),
           ...(includeRawResponse ? { response } : {}),
         },
         {
           endpoint: "/api/v2/analytics/conversations/aggregates/query",
+          ...(resolution.warnings.length > 0
+            ? { resolutionWarnings: resolution.warnings }
+            : {}),
         },
       );
     },

@@ -59,6 +59,7 @@ const cache = new LRUCache<string, OAuthClientUsageResponse>({
 
 const routingApi = new platformClient.RoutingApi();
 const analyticsApi = new platformClient.AnalyticsApi();
+const usersApi = new platformClient.UsersApi();
 const speechTextAnalyticsApi = new platformClient.SpeechTextAnalyticsApi();
 const recordingApi = new platformClient.RecordingApi();
 const oauthApi = new platformClient.OAuthApi();
@@ -296,6 +297,8 @@ server.registerTool(
 
 const analyticsConversationsActivityTool = analyticsConversationsActivity({
   analyticsApi,
+  usersApi,
+  authorizationApi,
 });
 server.registerTool(
   analyticsConversationsActivityTool.schema.name,
@@ -309,6 +312,8 @@ server.registerTool(
 
 const analyticsRoutingActivityTool = analyticsRoutingActivity({
   analyticsApi,
+  usersApi,
+  authorizationApi,
 });
 server.registerTool(
   analyticsRoutingActivityTool.schema.name,
@@ -322,6 +327,8 @@ server.registerTool(
 
 const analyticsUsersActivityTool = analyticsUsersActivity({
   analyticsApi,
+  usersApi,
+  authorizationApi,
 });
 server.registerTool(
   analyticsUsersActivityTool.schema.name,
@@ -348,6 +355,8 @@ server.registerTool(
 
 const kpiAgentPerformanceSummaryTool = kpiAgentPerformanceSummary({
   analyticsApi,
+  usersApi,
+  authorizationApi,
 });
 server.registerTool(
   kpiAgentPerformanceSummaryTool.schema.name,

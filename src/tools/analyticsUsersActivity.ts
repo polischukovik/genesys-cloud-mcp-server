@@ -1,9 +1,18 @@
-import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
+import type {
+  AnalyticsApi,
+  AuthorizationApi,
+  Models,
+  UsersApi,
+} from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { activityQuerySchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
 import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
+import {
+  collectUserAndDivisionIdsFromValue,
+  resolveUsersAndDivisions,
+} from "./utils/resolveUsersAndDivisions.js";
 import {
   errorEnvelopeResult,
   successEnvelopeResult,
@@ -11,6 +20,11 @@ import {
 
 export interface ToolDependencies {
   readonly analyticsApi: Pick<AnalyticsApi, "postAnalyticsUsersActivityQuery">;
+  readonly usersApi: Pick<UsersApi, "getUsers">;
+  readonly authorizationApi: Pick<
+    AuthorizationApi,
+    "getAuthorizationDivisions"
+  >;
 }
 
 const paramsSchema = z.object({
@@ -30,6 +44,18 @@ const paramsSchema = z.object({
     .positive()
     .optional()
     .describe("Optional page number, starting from 1"),
+  resolveUsers: z
+    .boolean()
+    .optional()
+    .describe(
+      "When true, resolves user IDs found in results to user names and division metadata. Default: true",
+    ),
+  resolveDivisions: z
+    .boolean()
+    .optional()
+    .describe(
+      "When true, resolves division IDs found in results to division names. Default: true",
+    ),
 });
 
 function formatErrorMessage(error: unknown): string {
@@ -47,7 +73,7 @@ function formatErrorMessage(error: unknown): string {
 export const analyticsUsersActivity: ToolFactory<
   ToolDependencies,
   typeof paramsSchema
-> = ({ analyticsApi }) =>
+> = ({ analyticsApi, usersApi, authorizationApi }) =>
   createTool({
     schema: {
       name: "analytics_users_activity",
@@ -56,7 +82,13 @@ export const analyticsUsersActivity: ToolFactory<
         "Runs a users activity query and returns activity grouped by requested user, team, queue, and status dimensions.",
       paramsSchema,
     },
-    call: async ({ query, pageSize, pageNumber }) => {
+    call: async ({
+      query,
+      pageSize,
+      pageNumber,
+      resolveUsers = true,
+      resolveDivisions = true,
+    }) => {
       let response: Models.UserActivityResponse;
 
       try {
@@ -68,8 +100,31 @@ export const analyticsUsersActivity: ToolFactory<
         return errorEnvelopeResult(formatErrorMessage(error));
       }
 
-      return successEnvelopeResult(response, {
+      const ids = collectUserAndDivisionIdsFromValue(response);
+      const resolution = await resolveUsersAndDivisions({
+        usersApi,
+        authorizationApi,
+        userIds: ids.userIds,
+        divisionIds: ids.divisionIds,
+        resolveUsers,
+        resolveDivisions,
+      });
+
+      const responseWithResolution = {
+        ...response,
+        ...(Object.keys(resolution.usersById).length > 0
+          ? { resolvedUsers: resolution.usersById }
+          : {}),
+        ...(Object.keys(resolution.divisionsById).length > 0
+          ? { resolvedDivisions: resolution.divisionsById }
+          : {}),
+      };
+
+      return successEnvelopeResult(responseWithResolution, {
         endpoint: "/api/v2/analytics/users/activity/query",
+        ...(resolution.warnings.length > 0
+          ? { resolutionWarnings: resolution.warnings }
+          : {}),
       });
     },
   });
