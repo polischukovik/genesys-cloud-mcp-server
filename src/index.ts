@@ -4,19 +4,28 @@ import { LRUCache } from "lru-cache";
 import platformClient from "purecloud-platform-client-v2";
 import { OAuthClientCredentialsWrapper } from "./auth/OAuthClientCredentialsWrapper.js";
 import { createConfigRetriever } from "./createConfigRetriever.js";
+import { analyticsConversationsActivity } from "./tools/analyticsConversationsActivity.js";
 import { analyticsConversationsAggregates } from "./tools/analyticsConversationsAggregates.js";
 import { analyticsConversationsAggregatesAsync } from "./tools/analyticsConversationsAggregatesAsync.js";
 import { analyticsConversationsDetailsAsync } from "./tools/analyticsConversationsDetailsAsync.js";
+import { analyticsConversationsDetailsAvailability } from "./tools/analyticsConversationsDetailsAvailability.js";
 import { analyticsConversationsDetailsQuery } from "./tools/analyticsConversationsDetailsQuery.js";
 import { analyticsQueuesObservations } from "./tools/analyticsQueuesObservations.js";
+import { analyticsRoutingActivity } from "./tools/analyticsRoutingActivity.js";
 import { analyticsTranscriptsAggregates } from "./tools/analyticsTranscriptsAggregates.js";
+import { analyticsTranscriptsAggregatesAsync } from "./tools/analyticsTranscriptsAggregatesAsync.js";
+import { analyticsUsersActivity } from "./tools/analyticsUsersActivity.js";
 import { analyticsUsersAggregates } from "./tools/analyticsUsersAggregates.js";
+import { analyticsUsersAggregatesAsync } from "./tools/analyticsUsersAggregatesAsync.js";
 import { analyticsUsersDetailsAsync } from "./tools/analyticsUsersDetailsAsync.js";
+import { analyticsUsersDetailsAvailability } from "./tools/analyticsUsersDetailsAvailability.js";
 import { analyticsUsersDetailsQuery } from "./tools/analyticsUsersDetailsQuery.js";
 import { analyticsUsersObservations } from "./tools/analyticsUsersObservations.js";
 import { conversationSentiment } from "./tools/conversationSentiment/conversationSentiment.js";
 import { conversationTopics } from "./tools/conversationTopics/conversationTopics.js";
 import { conversationTranscript } from "./tools/conversationTranscript/conversationTranscript.js";
+import { kpiAgentPerformanceSummary } from "./tools/kpiAgentPerformanceSummary.js";
+import { kpiQueuePerformanceSummary } from "./tools/kpiQueuePerformanceSummary.js";
 import { oauthClients } from "./tools/oauthClients/oauthClients.js";
 import {
   type OAuthClientUsageResponse,
@@ -118,6 +127,19 @@ server.registerTool(
   withAuth(analyticsConversationsAggregatesAsyncTool.call),
 );
 
+const analyticsUsersAggregatesAsyncTool = analyticsUsersAggregatesAsync({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsUsersAggregatesAsyncTool.schema.name,
+  {
+    description: analyticsUsersAggregatesAsyncTool.schema.description,
+    inputSchema: analyticsUsersAggregatesAsyncTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersAggregatesAsyncTool.schema.annotations,
+  },
+  withAuth(analyticsUsersAggregatesAsyncTool.call),
+);
+
 const analyticsUsersAggregatesTool = analyticsUsersAggregates({ analyticsApi });
 server.registerTool(
   analyticsUsersAggregatesTool.schema.name,
@@ -185,6 +207,39 @@ server.registerTool(
   withAuth(analyticsUsersDetailsAsyncTool.call),
 );
 
+const analyticsUsersDetailsAvailabilityTool = analyticsUsersDetailsAvailability(
+  {
+    analyticsApi,
+  },
+);
+server.registerTool(
+  analyticsUsersDetailsAvailabilityTool.schema.name,
+  {
+    description: analyticsUsersDetailsAvailabilityTool.schema.description,
+    inputSchema:
+      analyticsUsersDetailsAvailabilityTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersDetailsAvailabilityTool.schema.annotations,
+  },
+  withAuth(analyticsUsersDetailsAvailabilityTool.call),
+);
+
+const analyticsConversationsDetailsAvailabilityTool =
+  analyticsConversationsDetailsAvailability({
+    analyticsApi,
+  });
+server.registerTool(
+  analyticsConversationsDetailsAvailabilityTool.schema.name,
+  {
+    description:
+      analyticsConversationsDetailsAvailabilityTool.schema.description,
+    inputSchema:
+      analyticsConversationsDetailsAvailabilityTool.schema.paramsSchema.shape,
+    annotations:
+      analyticsConversationsDetailsAvailabilityTool.schema.annotations,
+  },
+  withAuth(analyticsConversationsDetailsAvailabilityTool.call),
+);
+
 const analyticsTranscriptsAggregatesTool = analyticsTranscriptsAggregates({
   analyticsApi,
 });
@@ -196,6 +251,21 @@ server.registerTool(
     annotations: analyticsTranscriptsAggregatesTool.schema.annotations,
   },
   withAuth(analyticsTranscriptsAggregatesTool.call),
+);
+
+const analyticsTranscriptsAggregatesAsyncTool =
+  analyticsTranscriptsAggregatesAsync({
+    analyticsApi,
+  });
+server.registerTool(
+  analyticsTranscriptsAggregatesAsyncTool.schema.name,
+  {
+    description: analyticsTranscriptsAggregatesAsyncTool.schema.description,
+    inputSchema:
+      analyticsTranscriptsAggregatesAsyncTool.schema.paramsSchema.shape,
+    annotations: analyticsTranscriptsAggregatesAsyncTool.schema.annotations,
+  },
+  withAuth(analyticsTranscriptsAggregatesAsyncTool.call),
 );
 
 const analyticsQueuesObservationsTool = analyticsQueuesObservations({
@@ -222,6 +292,71 @@ server.registerTool(
     annotations: analyticsUsersObservationsTool.schema.annotations,
   },
   withAuth(analyticsUsersObservationsTool.call),
+);
+
+const analyticsConversationsActivityTool = analyticsConversationsActivity({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsConversationsActivityTool.schema.name,
+  {
+    description: analyticsConversationsActivityTool.schema.description,
+    inputSchema: analyticsConversationsActivityTool.schema.paramsSchema.shape,
+    annotations: analyticsConversationsActivityTool.schema.annotations,
+  },
+  withAuth(analyticsConversationsActivityTool.call),
+);
+
+const analyticsRoutingActivityTool = analyticsRoutingActivity({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsRoutingActivityTool.schema.name,
+  {
+    description: analyticsRoutingActivityTool.schema.description,
+    inputSchema: analyticsRoutingActivityTool.schema.paramsSchema.shape,
+    annotations: analyticsRoutingActivityTool.schema.annotations,
+  },
+  withAuth(analyticsRoutingActivityTool.call),
+);
+
+const analyticsUsersActivityTool = analyticsUsersActivity({
+  analyticsApi,
+});
+server.registerTool(
+  analyticsUsersActivityTool.schema.name,
+  {
+    description: analyticsUsersActivityTool.schema.description,
+    inputSchema: analyticsUsersActivityTool.schema.paramsSchema.shape,
+    annotations: analyticsUsersActivityTool.schema.annotations,
+  },
+  withAuth(analyticsUsersActivityTool.call),
+);
+
+const kpiQueuePerformanceSummaryTool = kpiQueuePerformanceSummary({
+  analyticsApi,
+});
+server.registerTool(
+  kpiQueuePerformanceSummaryTool.schema.name,
+  {
+    description: kpiQueuePerformanceSummaryTool.schema.description,
+    inputSchema: kpiQueuePerformanceSummaryTool.schema.paramsSchema.shape,
+    annotations: kpiQueuePerformanceSummaryTool.schema.annotations,
+  },
+  withAuth(kpiQueuePerformanceSummaryTool.call),
+);
+
+const kpiAgentPerformanceSummaryTool = kpiAgentPerformanceSummary({
+  analyticsApi,
+});
+server.registerTool(
+  kpiAgentPerformanceSummaryTool.schema.name,
+  {
+    description: kpiAgentPerformanceSummaryTool.schema.description,
+    inputSchema: kpiAgentPerformanceSummaryTool.schema.paramsSchema.shape,
+    annotations: kpiAgentPerformanceSummaryTool.schema.annotations,
+  },
+  withAuth(kpiAgentPerformanceSummaryTool.call),
 );
 
 const voiceCallQualityTool = voiceCallQuality({ analyticsApi });

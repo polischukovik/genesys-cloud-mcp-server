@@ -2,9 +2,16 @@ import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { asyncConversationDetailsQuerySchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
-import { errorResult } from "./utils/errorResult.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
 import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
+import {
+  errorEnvelopeResult,
+  operationEnvelopeResult,
+} from "./utils/resultEnvelope.js";
+import {
+  collectArrayFieldFromPages,
+  runAsyncJobToCompletion,
+} from "./utils/runAsyncJobToCompletion.js";
 
 export interface ToolDependencies {
   readonly analyticsApi: Pick<
@@ -17,9 +24,9 @@ export interface ToolDependencies {
 
 const paramsSchema = z.object({
   operation: z
-    .enum(["create_job", "get_job", "get_results"])
+    .enum(["create_job", "get_job", "get_results", "run_to_completion"])
     .describe(
-      "Operation to run: create_job creates an async details job, get_job checks job status, get_results returns paged job results",
+      "Operation to run: create_job creates an async details job, get_job checks job status, get_results returns paged job results, run_to_completion creates a job and returns all pages",
     ),
   query: asyncConversationDetailsQuerySchema
     .optional()
@@ -43,6 +50,33 @@ const paramsSchema = z.object({
     .max(100)
     .optional()
     .describe("Optional page size for get_results. Maximum value is 100"),
+  pollIntervalMs: z
+    .number()
+    .int()
+    .positive()
+    .max(30000)
+    .optional()
+    .describe(
+      "Polling interval in milliseconds for run_to_completion. Default: 3000",
+    ),
+  maxPollAttempts: z
+    .number()
+    .int()
+    .positive()
+    .max(500)
+    .optional()
+    .describe(
+      "Maximum number of job status polls for run_to_completion. Default: 40",
+    ),
+  maxResultPages: z
+    .number()
+    .int()
+    .positive()
+    .max(100)
+    .optional()
+    .describe(
+      "Maximum number of paged result fetches for run_to_completion. Default: 25",
+    ),
 });
 
 function formatErrorMessage(error: unknown): string {
@@ -66,14 +100,23 @@ export const analyticsConversationsDetailsAsync: ToolFactory<
       name: "analytics_conversations_details_async",
       annotations: { title: "Analytics Conversations Details Async" },
       description:
-        "Creates and reads asynchronous conversations details jobs. Use this for large result sets that exceed synchronous query limits.",
+        "Creates and reads asynchronous conversations details jobs. Supports manual async operations and run-to-completion mode.",
       paramsSchema,
     },
-    call: async ({ operation, query, jobId, cursor, pageSize }) => {
+    call: async ({
+      operation,
+      query,
+      jobId,
+      cursor,
+      pageSize,
+      pollIntervalMs,
+      maxPollAttempts,
+      maxResultPages,
+    }) => {
       try {
         if (operation === "create_job") {
           if (!query) {
-            return errorResult(
+            return errorEnvelopeResult(
               "query is required when operation is create_job",
             );
           }
@@ -83,18 +126,60 @@ export const analyticsConversationsDetailsAsync: ToolFactory<
               query as unknown as Models.AsyncConversationQuery,
             );
 
-          return {
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify({ operation, response }),
-              },
-            ],
-          };
+          return operationEnvelopeResult(operation, response, {
+            endpoint: "/api/v2/analytics/conversations/details/jobs",
+          });
+        }
+
+        if (operation === "run_to_completion") {
+          if (!query) {
+            return errorEnvelopeResult(
+              "query is required when operation is run_to_completion",
+            );
+          }
+
+          const result = await runAsyncJobToCompletion({
+            createJob: () =>
+              analyticsApi.postAnalyticsConversationsDetailsJobs(
+                query as unknown as Models.AsyncConversationQuery,
+              ),
+            getJobStatus: (runJobId) =>
+              analyticsApi.getAnalyticsConversationsDetailsJob(runJobId),
+            getResultsPage: (runJobId, runCursor) =>
+              analyticsApi.getAnalyticsConversationsDetailsJobResults(
+                runJobId,
+                runCursor || pageSize
+                  ? { cursor: runCursor, pageSize }
+                  : undefined,
+              ),
+            pollIntervalMs,
+            maxPollAttempts,
+            maxResultPages,
+          });
+
+          const conversations = collectArrayFieldFromPages(
+            result.pages as unknown as Record<string, unknown>[],
+            "conversations",
+          );
+
+          return operationEnvelopeResult(
+            operation,
+            {
+              jobId: result.jobId,
+              conversations,
+              pages: result.pages,
+            },
+            {
+              pollAttempts: result.pollAttempts,
+              pageCount: result.pageCount,
+              truncated: result.truncated,
+              ...(result.nextCursor ? { nextCursor: result.nextCursor } : {}),
+            },
+          );
         }
 
         if (!jobId) {
-          return errorResult(
+          return errorEnvelopeResult(
             "jobId is required when operation is get_job or get_results",
           );
         }
@@ -103,14 +188,9 @@ export const analyticsConversationsDetailsAsync: ToolFactory<
           const response =
             await analyticsApi.getAnalyticsConversationsDetailsJob(jobId);
 
-          return {
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify({ operation, response }),
-              },
-            ],
-          };
+          return operationEnvelopeResult(operation, response, {
+            endpoint: "/api/v2/analytics/conversations/details/jobs/{jobId}",
+          });
         }
 
         const response =
@@ -119,16 +199,12 @@ export const analyticsConversationsDetailsAsync: ToolFactory<
             cursor || pageSize ? { cursor, pageSize } : undefined,
           );
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify({ operation, response }),
-            },
-          ],
-        };
+        return operationEnvelopeResult(operation, response, {
+          endpoint:
+            "/api/v2/analytics/conversations/details/jobs/{jobId}/results",
+        });
       } catch (error: unknown) {
-        return errorResult(formatErrorMessage(error));
+        return errorEnvelopeResult(formatErrorMessage(error), { operation });
       }
     },
   });

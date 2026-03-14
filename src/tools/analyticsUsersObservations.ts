@@ -2,9 +2,12 @@ import type { AnalyticsApi, Models } from "purecloud-platform-client-v2";
 import { z } from "zod";
 import { observationQuerySchema } from "./utils/analyticsSchemas.js";
 import { createTool, type ToolFactory } from "./utils/createTool.js";
-import { errorResult } from "./utils/errorResult.js";
 import { isMissingPermissionsError } from "./utils/genesys/isMissingPermissionsError.js";
 import { isUnauthorizedError } from "./utils/genesys/isUnauthorizedError.js";
+import {
+  errorEnvelopeResult,
+  successEnvelopeResult,
+} from "./utils/resultEnvelope.js";
 
 export interface ToolDependencies {
   readonly analyticsApi: Pick<
@@ -51,16 +54,11 @@ export const analyticsUsersObservations: ToolFactory<
           query as unknown as Models.UserObservationQuery,
         );
       } catch (error: unknown) {
-        return errorResult(formatErrorMessage(error));
+        return errorEnvelopeResult(formatErrorMessage(error));
       }
 
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(response),
-          },
-        ],
-      };
+      return successEnvelopeResult(response, {
+        endpoint: "/api/v2/analytics/users/observations/query",
+      });
     },
   });

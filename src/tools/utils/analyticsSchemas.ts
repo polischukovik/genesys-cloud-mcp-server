@@ -89,6 +89,18 @@ export const conversationAsyncAggregationQuerySchema = baseAggregatesQuerySchema
   })
   .passthrough();
 
+export const userAsyncAggregationQuerySchema = baseAggregatesQuerySchema
+  .extend({
+    pageSize: z.number().int().positive().optional(),
+  })
+  .passthrough();
+
+export const transcriptAsyncAggregationQuerySchema = baseAggregatesQuerySchema
+  .extend({
+    pageSize: z.number().int().positive().optional(),
+  })
+  .passthrough();
+
 export const observationQuerySchema = z
   .object({
     filter: analyticsFilterSchema,
@@ -150,5 +162,21 @@ export const asyncUsersDetailsQuerySchema = z
     routingStatusFilters: z.array(analyticsFilterSchema).optional(),
     order: z.string().optional(),
     limit: z.number().int().positive().optional(),
+  })
+  .passthrough();
+
+export const activityQueryMetricSchema = z
+  .object({
+    metric: z.string(),
+    details: z.boolean().optional(),
+  })
+  .passthrough();
+
+export const activityQuerySchema = z
+  .object({
+    metrics: z.array(activityQueryMetricSchema).min(1),
+    groupBy: z.array(z.string()).min(1),
+    filter: analyticsFilterSchema.optional(),
+    order: z.string().optional(),
   })
   .passthrough();

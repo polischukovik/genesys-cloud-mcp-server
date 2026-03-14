@@ -13,41 +13,57 @@ Full tool reference (detailed input payloads, permissions, and endpoints): [docs
 
 | Tool | MCP Name | Key Inputs |
 |---|---|---|
-| [Search Queues](docs/tools.md#search-queues) | `search_queues` | `name`, `pageNumber`, `pageSize` |
-| [Search Voice Conversations](docs/tools.md#search-voice-conversations) | `search_voice_conversations` | `startDate`, `endDate`, `phoneNumber?`, `pageNumber?`, `pageSize?` |
-| [Sample Conversations By Queue](docs/tools.md#sample-conversations-by-queue) | `sample_conversations_by_queue` | `queueId`, `startDate`, `endDate` |
-| [Query Queue Volumes](docs/tools.md#query-queue-volumes) | `query_queue_volumes` | `queueIds[]`, `startDate`, `endDate` |
+| `search_queues` | `search_queues` | `name`, `pageNumber`, `pageSize` |
+| `search_voice_conversations` | `search_voice_conversations` | `startDate`, `endDate`, `phoneNumber?`, `pageNumber?`, `pageSize?` |
+| `sample_conversations_by_queue` | `sample_conversations_by_queue` | `queueId`, `startDate`, `endDate` |
+| `query_queue_volumes` | `query_queue_volumes` | `queueIds[]`, `startDate`, `endDate` |
 
-### Analytics Aggregates and Observations
+### Advanced Analytics
 
 | Tool | MCP Name | Key Inputs |
 |---|---|---|
-| [Analytics Conversations Aggregates](docs/tools.md#analytics-conversations-aggregates) | `analytics_conversations_aggregates` | `query` (`ConversationAggregationQuery`) |
-| [Analytics Conversations Aggregates Async](docs/tools.md#analytics-conversations-aggregates-async) | `analytics_conversations_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?` |
-| [Analytics Conversations Details Query](docs/tools.md#analytics-conversations-details-query) | `analytics_conversations_details_query` | `query` (`ConversationQuery`) |
-| [Analytics Conversations Details Async](docs/tools.md#analytics-conversations-details-async) | `analytics_conversations_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?` |
-| [Analytics Users Aggregates](docs/tools.md#analytics-users-aggregates) | `analytics_users_aggregates` | `query` (`UserAggregationQuery`) |
-| [Analytics Users Details Query](docs/tools.md#analytics-users-details-query) | `analytics_users_details_query` | `query` (`UserDetailsQuery`) |
-| [Analytics Users Details Async](docs/tools.md#analytics-users-details-async) | `analytics_users_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?` |
-| [Analytics Queues Observations](docs/tools.md#analytics-queues-observations) | `analytics_queues_observations` | `query` (`QueueObservationQuery`) |
-| [Analytics Users Observations](docs/tools.md#analytics-users-observations) | `analytics_users_observations` | `query` (`UserObservationQuery`) |
-| [Analytics Transcripts Aggregates](docs/tools.md#analytics-transcripts-aggregates) | `analytics_transcripts_aggregates` | `query` (`TranscriptAggregationQuery`) |
+| `analytics_conversations_aggregates` | `analytics_conversations_aggregates` | `query` |
+| `analytics_conversations_aggregates_async` | `analytics_conversations_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?`, `run_to_completion options?` |
+| `analytics_users_aggregates` | `analytics_users_aggregates` | `query` |
+| `analytics_users_aggregates_async` | `analytics_users_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?`, `run_to_completion options?` |
+| `analytics_conversations_details_query` | `analytics_conversations_details_query` | `query` |
+| `analytics_conversations_details_async` | `analytics_conversations_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?`, `run_to_completion options?` |
+| `analytics_conversations_details_availability` | `analytics_conversations_details_availability` | no input |
+| `analytics_users_details_query` | `analytics_users_details_query` | `query` |
+| `analytics_users_details_async` | `analytics_users_details_async` | `operation`, `query?`, `jobId?`, `cursor?`, `pageSize?`, `run_to_completion options?` |
+| `analytics_users_details_availability` | `analytics_users_details_availability` | no input |
+| `analytics_transcripts_aggregates` | `analytics_transcripts_aggregates` | `query` |
+| `analytics_transcripts_aggregates_async` | `analytics_transcripts_aggregates_async` | `operation`, `query?`, `jobId?`, `cursor?`, `run_to_completion options?` |
+| `analytics_queues_observations` | `analytics_queues_observations` | `query` |
+| `analytics_users_observations` | `analytics_users_observations` | `query` |
+| `analytics_conversations_activity` | `analytics_conversations_activity` | `query`, `pageSize?`, `pageNumber?` |
+| `analytics_routing_activity` | `analytics_routing_activity` | `query`, `pageSize?`, `pageNumber?` |
+| `analytics_users_activity` | `analytics_users_activity` | `query`, `pageSize?`, `pageNumber?` |
+
+### KPI Tools
+
+| Tool | MCP Name | Key Inputs |
+|---|---|---|
+| `kpi_queue_performance_summary` | `kpi_queue_performance_summary` | `interval`, `granularity?`, `queueIds?`, `mediaTypes?`, `metrics?` |
+| `kpi_agent_performance_summary` | `kpi_agent_performance_summary` | `interval`, `granularity?`, `userIds?`, `queueIds?`, `metrics?` |
 
 ### Conversation Intelligence
 
 | Tool | MCP Name | Key Inputs |
 |---|---|---|
-| [Voice Call Quality](docs/tools.md#voice-call-quality) | `voice_call_quality` | `conversationIds[]` |
-| [Conversation Sentiment](docs/tools.md#conversation-sentiment) | `conversation_sentiment` | `conversationIds[]` |
-| [Conversation Topics](docs/tools.md#conversation-topics) | `conversation_topics` | `conversationId` |
-| [Conversation Transcript](docs/tools.md#conversation-transcript) | `conversation_transcript` | `conversationId` |
+| `voice_call_quality` | `voice_call_quality` | `conversationIds[]` |
+| `conversation_sentiment` | `conversation_sentiment` | `conversationIds[]` |
+| `conversation_topics` | `conversation_topics` | `conversationId` |
+| `conversation_transcript` | `conversation_transcript` | `conversationId` |
 
 ### OAuth Administration
 
 | Tool | MCP Name | Key Inputs |
 |---|---|---|
-| [OAuth Clients](docs/tools.md#oauth-clients) | `oauth_clients` | No input |
-| [OAuth Client Usage](docs/tools.md#oauth-client-usage) | `oauth_client_usage` | `oauthClientId`, `startDate`, `endDate` |
+| `oauth_clients` | `oauth_clients` | no input |
+| `oauth_client_usage` | `oauth_client_usage` | `oauthClientId`, `startDate`, `endDate` |
+
+Advanced analytics tools return a consistent result envelope (`ok`, `data`, `meta`) and support `run_to_completion` for async tools. See [docs/tools.md](docs/tools.md) for full payload examples.
 
 ## Usage with Claude Desktop
 
