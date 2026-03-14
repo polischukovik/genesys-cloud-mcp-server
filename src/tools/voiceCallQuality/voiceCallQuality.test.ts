@@ -48,7 +48,7 @@ describe("Voice Call Quality Tool", () => {
       _meta: undefined,
       annotations: { title: "Voice Call Quality" },
       description:
-        "Retrieves voice call quality metrics for one or more conversations by ID. This tool specifically focuses on voice interactions and returns the minimum Mean Opinion Score (MOS) observed in each conversation as structured JSON. MOS is a measure of perceived audio quality based on factors such as jitter, latency, packet loss, and codec. Use the following legend to interpret MOS values:\n\n" +
+        "Retrieves minimum voice MOS for each conversation ID and classifies quality into Poor/Acceptable/Excellent to help identify degraded calls.\n\n" +
         "  • Poor:       MOS < 3.5\n" +
         "  • Acceptable: 3.5 ≤ MOS < 4.3\n" +
         "  • Excellent:  MOS ≥ 4.3",

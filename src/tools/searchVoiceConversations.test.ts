@@ -50,7 +50,7 @@ describe("Search Voice Conversations Tool", () => {
       _meta: undefined,
       annotations: { title: "Search Voice Conversations" },
       description:
-        "Searches for voice conversations within a specified time window, optionally filtering by phone number. Returns a paginated list of conversation IDs and call duration for use in further analysis or tool calls.",
+        "Searches inbound and outbound voice conversations for a time window (optional ANI filter) and returns paged conversation IDs with call duration.",
       inputSchema: {
         type: "object",
         properties: {

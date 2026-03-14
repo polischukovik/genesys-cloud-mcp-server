@@ -53,7 +53,7 @@ describe("Query Queue Volumes Tool", () => {
       _meta: undefined,
       annotations: { title: "Query Queue Volumes" },
       description:
-        "Returns a breakdown of how many conversations occurred in each specified queue between two dates. Useful for comparing workload across queues. MAX 300 queue IDs.",
+        "Returns conversation counts for each queue ID in the requested interval, useful for queue workload comparisons and trend snapshots.",
       inputSchema: {
         type: "object",
         properties: {

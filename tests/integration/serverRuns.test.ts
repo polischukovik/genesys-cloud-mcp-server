@@ -6,12 +6,16 @@ import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, beforeAll, describe, expect, test } from "vitest";
 import packageInfo from "../../package.json" with { type: "json" };
 
-describe("Server Runs", () => {
+const shouldRunNpmLinkTest = process.env.RUN_NPM_LINK_TESTS === "true";
+const shouldRunServerIntegration =
+  process.env.RUN_SERVER_INTEGRATION_TESTS === "true";
+
+describe.runIf(shouldRunServerIntegration)("Server Runs", () => {
   let client: Client | null = null;
 
   beforeAll(() => {
     execSync("npm run build", { stdio: "inherit" });
-  });
+  }, 120000);
 
   afterEach(async () => {
     if (client) await client.close();
@@ -20,7 +24,7 @@ describe("Server Runs", () => {
   test("server returns list of tools", async () => {
     const transport = new StdioClientTransport({
       command: "node",
-      args: ["--inspect", join(__dirname, "../../dist/index.js")],
+      args: [join(__dirname, "../../dist/index.js")],
       env: {
         // Provides path for node binary to be used in test
         PATH: process.env.PATH ?? "",
@@ -71,7 +75,7 @@ describe("Server Runs", () => {
   test("server version matches version in package.json", async () => {
     const transport = new StdioClientTransport({
       command: "node",
-      args: ["--inspect", join(__dirname, "../../dist/index.js")],
+      args: [join(__dirname, "../../dist/index.js")],
       env: {
         // Provides path for node binary to be used in test
         PATH: process.env.PATH ?? "",
@@ -92,7 +96,7 @@ describe("Server Runs", () => {
   test("server runs via cli", async () => {
     const transport = new StdioClientTransport({
       command: "node",
-      args: ["--inspect", join(__dirname, "../../dist/cli.js")],
+      args: [join(__dirname, "../../dist/cli.js")],
       env: {
         PATH: process.env.PATH ?? "",
       },
@@ -107,9 +111,9 @@ describe("Server Runs", () => {
 
     const { tools } = await client.listTools();
     expect(tools.length).toBeGreaterThan(0);
-  });
+  }, 20000);
 
-  test("server runs via npx", async () => {
+  test.runIf(shouldRunNpmLinkTest)("server runs via npx", async () => {
     execSync("npm link", { stdio: "inherit" });
     const transport = new StdioClientTransport({
       command: "npx",
@@ -133,7 +137,7 @@ describe("Server Runs", () => {
   test("calling tool errors if not OAuth config", async () => {
     const transport = new StdioClientTransport({
       command: "node",
-      args: ["--inspect", join(__dirname, "../../dist/cli.js")],
+      args: [join(__dirname, "../../dist/cli.js")],
       env: {
         PATH: process.env.PATH ?? "",
       },

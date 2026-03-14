@@ -49,7 +49,7 @@ describe("OAuth Client Usage", () => {
       _meta: undefined,
       annotations: { title: "OAuth Client Usage" },
       description:
-        "Retrieves the usage of an OAuth Client for a given period. It returns the total number of requests and a breakdown of Platform API endpoints used by the client.",
+        "Returns API usage for an OAuth client in a time range, including total request count and endpoint-level breakdown.",
       inputSchema: {
         properties: {
           oauthClientId: {

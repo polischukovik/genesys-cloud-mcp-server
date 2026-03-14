@@ -55,7 +55,7 @@ describe("Conversation Topics Tool", () => {
       _meta: undefined,
       annotations: { title: "Conversation Topics" },
       description:
-        "Retrieves Speech and Text Analytics topics detected for a specific conversation. Topics represent business-level intents (e.g. cancellation, billing enquiry) inferred from recognised phrases in the customer-agent interaction.",
+        "Lists detected Speech and Text Analytics topics for a conversation, including topic names and descriptions inferred from transcript content.",
       inputSchema: {
         type: "object",
         properties: {
